@@ -59,13 +59,12 @@ class Environments extends MI_Controller {
 		$response = false;
 
 		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
-			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
 
-			$stopDockerCompose = "cd $dockerComposePath;";
-			$stopDockerCompose .= "/usr/local/bin/docker-compose up -d;";
-			shell_exec($stopDockerCompose);
+			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+			echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
 
 			$response = true;
+
 		}
 
 		echo json_encode($response);
@@ -76,11 +75,9 @@ class Environments extends MI_Controller {
 		$response = false;
 
 		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
-			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
 
-			$stopDockerCompose = "cd $dockerComposePath;";
-			$stopDockerCompose .= "/usr/local/bin/docker-compose stop;";
-			shell_exec($stopDockerCompose);
+			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+			echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/stop_docker-compose.sh;');
 
 			$response = true;
 		}
@@ -97,20 +94,22 @@ class Environments extends MI_Controller {
 		$response = false;
 
 		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
-			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
 
-			$stopDockerCompose = "cd $dockerComposePath;";
-			$stopDockerCompose .= "/usr/local/bin/docker-compose stop; /usr/local/bin/docker-compose rm -f;";
-			shell_exec($stopDockerCompose);
+			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/stop_docker-compose.sh;');
+
+
+			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/delete_docker-compose.sh;');
 
 			$this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
 
 			// Delete SFTP account + folder
-			$deleteSftpCmd = 'cd .docker; /usr/local/bin/docker-compose exec sftp-server sh -c "sudo userdel ' . $_GET['folder'] . '";';
-			$deleteSftpCmd .= 'cd .docker; /usr/local/bin/docker-compose exec sftp-server sh -c "sudo rm -rf /uploads/' . $_GET['folder'] . '";';
-			shell_exec($deleteSftpCmd);
+			shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_user.sh ' . $_GET['folder'] . ';');
+			shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_folder.sh ' . $_GET['folder'] . ';');
 
 			$response = true;
+
 		}
 
 		echo json_encode($response);
@@ -179,8 +178,7 @@ class Environments extends MI_Controller {
 		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_5.sh ' . $projectUniqId);
 
 		// Add phpinfo()
-		$contentPhpInfo = "<?php echo phpinfo(); ?>";
-		file_put_contents(ENVS_FOLDER . "/" . $projectUniqId . "/src/" . "index.php", $contentPhpInfo);
+		echo shell_exec('cd envs; cd ' . $projectUniqId. '; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_sftp_6.sh;');
 
 		$environment = new stdClass();
 		$environment->{Environments_model::userId} = $this->ion_auth->user()->row()->id;
@@ -317,9 +315,7 @@ class Environments extends MI_Controller {
 			$dockerComposePath = ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
 			file_put_contents($dockerComposePath . "docker-compose.yml", $environment->{Environments_model::dockerCompose});
 
-			$launchDockerCompose = "cd $dockerComposePath;";
-			$launchDockerCompose .= "/usr/local/bin/docker-compose up -d;";
-			shell_exec($launchDockerCompose);
+			echo shell_exec('cd ' . $dockerComposePath . '; pwd; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
 
 		} else {
 			// Todo error

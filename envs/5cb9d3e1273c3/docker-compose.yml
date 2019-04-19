@@ -1,28 +1,28 @@
 version: '2'
 
 services:
-  mysql-5cb9b5e043306:
+  mysql-5cb9d3e1273c3:
     restart: always
     image: mysql:5.5.58
     ports:
-      - 23684:3306
+      - 19823:3306
     volumes:
-      - mysql_dir-5cb9b5e043306:/var/lib/mysql
+      - mysql_dir-5cb9d3e1273c3:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: toor
 
-  php-5cb9b5e043306:
+  php-5cb9d3e1273c3:
     restart: always
     image: php:7.1-apache
     depends_on:
-      - mysql-5cb9b5e043306
+      - mysql-5cb9d3e1273c3
     ports:
-      - 23991:80
+      - 12572:80
     links:
-      - mysql-5cb9b5e043306:db-server
+      - mysql-5cb9d3e1273c3:db-server
     volumes:
       - "./src:/var/www/html"
 
 volumes:
-  mysql_dir-5cb9b5e043306:
+  mysql_dir-5cb9d3e1273c3:
     driver: local
