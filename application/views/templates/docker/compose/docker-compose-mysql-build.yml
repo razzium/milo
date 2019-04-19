@@ -1,0 +1,10 @@
+
+  mysql-{project}:
+    restart: always
+    build: {version}
+    ports:
+      - {port}:3306
+    volumes:
+      - mysql_dir-{project}:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: toor

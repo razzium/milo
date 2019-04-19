@@ -1,0 +1,12 @@
+
+  php-{project}:
+    restart: always
+    image: {version}
+    depends_on:
+      - mysql-{project}
+    ports:
+      - {port}:80
+    links:
+      - mysql-{project}:db-server
+    volumes:
+      - "./src:/var/www/html"

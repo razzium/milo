@@ -1,0 +1,4 @@
+
+volumes:
+  mysql_dir-{project}:
+    driver: local

@@ -1,0 +1,13 @@
+
+  phpmyadmin-{project}:
+    restart: always
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - {port}:80
+    depends_on:
+      - mysql-{project}
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    links:
+      - mysql-{project}:mysql
