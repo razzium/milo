@@ -355,6 +355,6 @@ if (!defined('REFRESH_ENV_STATUS_INTERVAL') || empty(REFRESH_ENV_STATUS_INTERVAL
 	define('REFRESH_ENV_STATUS_INTERVAL', 60000);
 }
 
-include_once './vendor/autoload.php';
+// Todo -> include_once './vendor/autoload.php';
 
 require_once BASEPATH.'core/CodeIgniter.php';
