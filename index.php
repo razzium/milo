@@ -35,7 +35,6 @@
  * @since	Version 1.0.0
  * @filesource
  */
-//echo shell_exec('sh scripts_shell/chmod_env-php.sh ');
 
 /*
  *---------------------------------------------------------------

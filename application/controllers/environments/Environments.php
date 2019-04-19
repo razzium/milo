@@ -125,7 +125,7 @@ class Environments extends MI_Controller {
 
 			// Check MySQL
 			$mySqlContainer = $folderName . "_mysql-" . $folderName . "_1";
-			$mySqlContainerStatus = shell_exec('/usr/local/bin/docker inspect -f "{{.State.Running}}" ' . $mySqlContainer);
+			$mySqlContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status.sh ' . $mySqlContainer. ';');
 			if (isset($mySqlContainerStatus) && !empty($mySqlContainerStatus) && strpos($mySqlContainerStatus, 'true') !== false) {
 				$generalStatus = true;
 			}
@@ -133,7 +133,7 @@ class Environments extends MI_Controller {
 			// Check PHP
 			if ($generalStatus) {
 				$phpContainer = $folderName . "_php-" . $folderName . "_1";
-				$phpContainerStatus = shell_exec('/usr/local/bin/docker inspect -f "{{.State.Running}}" ' . $phpContainer);
+				$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status.sh ' . $phpContainer. ';');
 				if (isset($phpContainerStatus) && !empty($phpContainerStatus) && strpos($phpContainerStatus, 'true') !== false) {
 					$generalStatus = true;
 				} else {
@@ -315,7 +315,7 @@ class Environments extends MI_Controller {
 			$dockerComposePath = ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
 			file_put_contents($dockerComposePath . "docker-compose.yml", $environment->{Environments_model::dockerCompose});
 
-			echo shell_exec('cd ' . $dockerComposePath . '; pwd; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
+			echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
 
 		} else {
 			// Todo error
@@ -360,7 +360,7 @@ class Environments extends MI_Controller {
 	private function getDockerMachinePort($busyPorts)
 	{
 
-		$portsStr = shell_exec('/usr/local/bin/docker ps --format "{{.Ports}}"');
+		$portsStr = shell_exec('cd .docker; sh scripts_shell/docker_check_ports.sh ;');
 		$portsArray = explode("tcp", $portsStr);
 
 		$from = ":";
