@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 cd ..;
+pwd;
 cd ..;
-chmod -R 777 envs
+pwd;
+sudo chmod -R 777 envs
