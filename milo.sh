@@ -2,12 +2,8 @@
 # Stop sftp server
 # Launch sftp
 # Chmod all needed
-#chmod -R 777 envs;
-#docker stop docker_sftp-server_1;
-#cd .docker;
-#docker-compose up -d --build;
-#chmod -R 777 scripts_shell;
 
+# Ask config params
 echo -n "What is the database name ? "
 read dbNameAnswer
 
@@ -28,4 +24,14 @@ echo    "<?php \n"   \
     "define('DB_ENVS_FOLDER', \"envs\"); \r\n"   \
     "define('REFRESH_ENV_STATUS_INTERVAL', 60000); \r\n"  \
     > env.php
+
+# Chmod envs folder
+chmod -R 777 envs;
+
+# Ru docker sftp
+docker stop docker_sftp-server_1;
+cd .docker;
+docker-compose up -d --build;
+chmod -R 777 scripts_shell;
+
 
