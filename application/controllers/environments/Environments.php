@@ -144,11 +144,11 @@ class Environments extends MI_Controller {
 				$phpContainer = $folderName . "_php-" . $folderName . "_1";
 				$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status.sh ' . $phpContainer. ';');
 
-				if (is_null($phpContainerStatus)) {
+				if (!isset($phpContainerStatus) || is_null($phpContainerStatus)) {
 					$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_bin.sh ' . $phpContainer. ';');
 				}
 
-				if (is_null($phpContainerStatus)) {
+				if (!isset($phpContainerStatus) || is_null($phpContainerStatus)) {
 					$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_local_bin.sh ' . $phpContainer. ';');
 				}
 				if (isset($phpContainerStatus) && !empty($phpContainerStatus) && strpos($phpContainerStatus, 'true') !== false) {
@@ -317,7 +317,7 @@ class Environments extends MI_Controller {
 			exit('Error insert env !');
 		}
 		// Todo
-/*		*/
+		/*		*/
 
 		// Todo generate compose then run it
 		// Send mail admin
