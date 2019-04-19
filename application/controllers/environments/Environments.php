@@ -179,6 +179,7 @@ class Environments extends MI_Controller {
 		$addSftpCmd .= 'cd .docker; /usr/local/bin/docker-compose exec sftp-server sh -c "sudo chown ' . $projectUniqId . ':sftp -R /uploads/' . $projectUniqId . '/src";';*/
 		//shell_exec($addSftpCmd);
 
+		echo shell_exec('cd .docker; sh scripts_shell/chmod_envs.sh ');
 		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_1.sh ' . $projectUniqId);
 		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_2.sh ' . $projectUniqId);
 		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_3.sh ' . $projectUniqId);
