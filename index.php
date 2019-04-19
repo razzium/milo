@@ -326,29 +326,28 @@ if ( function_exists( 'date_default_timezone_set' ) )
  * And away we go...
  */
 
-if (!defined('ENVS_FOLDER') || empty(ENVS_FOLDER)) {
-	// Print error message
-	echo "Please set ENVS_FOLDER variable in env.php";
-}
-
 if (!defined('DB_NAME') || empty(DB_NAME)) {
 	// Print error message
-	echo "Please set DB_NAME variable in env.php";
+	echo "Please set DB_NAME variable in env.php (run milo.sh)";
 }
 
 if (!defined('DB_USER') || empty(DB_USER)) {
 	// Print error message
-	echo "Please set DB_USER variable in env.php";
+	echo "Please set DB_USER variable in env.php (run milo.sh)";
 }
 
 if (!defined('DB_PASS') || empty(DB_PASS)) {
 	// Print error message
-	echo "Please set DB_PASS variable in env.php";
+	echo "Please set DB_PASS variable in env.php (run milo.sh)";
 }
 
 if (!defined('DB_PORT') || empty(DB_PORT)) {
 	// Print error message
-	echo "Please set DB_PORT variable in env.php";
+	echo "Please set DB_PORT variable in env.php (run milo.sh)";
+}
+
+if (!defined('ENVS_FOLDER') || empty(ENVS_FOLDER)) {
+	define('ENVS_FOLDER', 'envs');
 }
 
 if (!defined('REFRESH_ENV_STATUS_INTERVAL') || empty(REFRESH_ENV_STATUS_INTERVAL)) {
