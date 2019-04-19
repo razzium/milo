@@ -23,8 +23,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$currentFolder = str_replace($_SERVER['DOCUMENT_ROOT'], "", getcwd());
-$config['base_url'] = "http://$_SERVER[HTTP_HOST]" . $currentFolder;
+if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
+    $currentFolder = str_replace($_SERVER['DOCUMENT_ROOT'], "", getcwd());
+    $config['base_url'] = "http://$_SERVER[HTTP_HOST]" . $currentFolder;
+} else {
+    $config['base_url'] = "";
+}
 
 /*
 |--------------------------------------------------------------------------
