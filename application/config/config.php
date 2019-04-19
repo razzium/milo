@@ -23,11 +23,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-if (ENVIRONMENT == "development") {
-    $config['base_url'] = 'http://localhost:8888/milo';
-} else {
-    $config['base_url'] = '';
-}
+$currentFolder = str_replace($_SERVER['DOCUMENT_ROOT'], "", getcwd());
+$config['base_url'] = "http://$_SERVER[HTTP_HOST]" . $currentFolder;
 
 /*
 |--------------------------------------------------------------------------
