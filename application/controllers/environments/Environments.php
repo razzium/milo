@@ -126,14 +126,31 @@ class Environments extends MI_Controller {
 			// Check MySQL
 			$mySqlContainer = $folderName . "_mysql-" . $folderName . "_1";
 			$mySqlContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status.sh ' . $mySqlContainer. ';');
+			if (is_null($mySqlContainerStatus)) {
+				$mySqlContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_bin.sh ' . $mySqlContainer. ';');
+			}
+
+			if (is_null($mySqlContainerStatus)) {
+				$mySqlContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_local_bin.sh ' . $mySqlContainer. ';');
+			}
 			if (isset($mySqlContainerStatus) && !empty($mySqlContainerStatus) && strpos($mySqlContainerStatus, 'true') !== false) {
 				$generalStatus = true;
+			} else {
+				$generalStatus = false;
 			}
 
 			// Check PHP
 			if ($generalStatus) {
 				$phpContainer = $folderName . "_php-" . $folderName . "_1";
 				$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status.sh ' . $phpContainer. ';');
+
+				if (is_null($phpContainerStatus)) {
+					$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_bin.sh ' . $phpContainer. ';');
+				}
+
+				if (is_null($phpContainerStatus)) {
+					$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_local_bin.sh ' . $phpContainer. ';');
+				}
 				if (isset($phpContainerStatus) && !empty($phpContainerStatus) && strpos($phpContainerStatus, 'true') !== false) {
 					$generalStatus = true;
 				} else {
@@ -361,6 +378,13 @@ class Environments extends MI_Controller {
 	{
 
 		$portsStr = shell_exec('cd .docker; sh scripts_shell/docker_check_ports.sh ;');
+		if (is_null($portsStr)) {
+			$portsStr = shell_exec('cd .docker; sh scripts_shell/docker_check_ports_bin.sh ;');
+		}
+		if (is_null($portsStr)) {
+			$portsStr = shell_exec('cd .docker; sh scripts_shell/docker_check_ports_local_bin.sh ;');
+		}
+
 		$portsArray = explode("tcp", $portsStr);
 
 		$from = ":";
