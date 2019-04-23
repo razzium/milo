@@ -1,9 +1,0 @@
-version: '2'
-
-services:
-  sftp-5cbf34b567076:
-    image: atmoz/sftp
-    restart: always
-    ports:
-        - "1899:22"
-    command: foo:pass:1001

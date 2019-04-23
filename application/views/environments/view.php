@@ -27,6 +27,7 @@
 					<th>Creation date</th>
 					<th>STFP user</th>
 					<th>STFP pass</th>
+					<th>STFP port</th>
 					<th>Action</th>
 				</tr>
 				</thead>
@@ -150,6 +151,7 @@
 				{ "data": "<?= Environments_model::createdDate ?>" },
 				{ "data": "<?= Environments_model::sftpUser ?>" },
 				{ "data": "<?= Environments_model::sftpPassword ?>" },
+				{ "data": "<?= Environments_model::sftpPort ?>" },
 /*				{
 					"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
 					"data": function (data) {

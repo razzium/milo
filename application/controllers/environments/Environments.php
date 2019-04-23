@@ -190,17 +190,8 @@ class Environments extends MI_Controller {
 		// Get available port
 		$sftpPort = $this->getAvailablePort();
 
-		// Create SFTP account + folder
-/*		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_1.sh ' . $projectUniqId);
-		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_2.sh ' . $projectUniqId);
-		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_3.sh ' . $projectUniqId);
-		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_4.sh ' . $projectUniqId . " " . $sftpPassword);
-		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_5.sh ' . $projectUniqId);*/
-
-		//echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp.sh ' . $sftpPort  . ' ' . $projectUniqId . ' ' . $sftpPassword);
-
 		// Add phpinfo()
-		echo shell_exec('cd envs; mkdir ' . $projectUniqId . '; cd ' . $projectUniqId. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_sftp_6.sh;');
+		echo shell_exec('cd envs; mkdir ' . $projectUniqId . '; cd ' . $projectUniqId. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
 
 		$environment = new stdClass();
 		$environment->{Environments_model::userId} = $this->ion_auth->user()->row()->id;
