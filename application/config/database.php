@@ -74,7 +74,7 @@ $active_group = 'default';
 $query_builder = TRUE;
 
 // Todo constants ?!
-$db['default']['hostname'] = 'localhost';
+$db['default']['hostname'] = '127.0.0.1';
 $db['default']['port'] = DB_PORT;
 $db['default']['database'] = DB_NAME;
 $db['default']['username'] = DB_USER;

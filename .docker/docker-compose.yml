@@ -1,15 +1,31 @@
 
 version: '3'
- 
+
 services:
-    sftp-server:
-        build:
-            context: ./docker
-            args:
-                SSH_MASTER_USER: ${SSH_MASTER_USER}
-                SSH_MASTER_PASS: ${SSH_MASTER_PASS}
-        hostname: server
-        ports:
-            - "2222:22"
-        volumes:
-            - ../envs:/uploads
+  sftp-server-milo:
+    build:
+      context: ./docker/sftp
+      args:
+        SSH_MASTER_USER: ${SSH_MASTER_USER}
+        SSH_MASTER_PASS: ${SSH_MASTER_PASS}
+    hostname: server
+    ports:
+      - "2222:22"
+    volumes:
+      - ../envs:/uploads
+
+  mariadb-milo:
+    image: "mariadb"
+    environment:
+      - MYSQL_ROOT_PASSWORD=oQ5x6dbx75eLhkpL
+    ports:
+      - "33060:3306"
+    volumes:
+      - mariadb-milo_dir:/var/lib/mysql
+      - ./docker/mariadb:/docker-entrypoint-initdb.d
+    expose:
+      - "3306"
+
+volumes:
+  mariadb-milo_dir:
+    driver: local

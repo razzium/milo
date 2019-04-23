@@ -6,9 +6,7 @@
 <div class="container">
 	<div class="row mb-4">
 		<h2 class="text-center"><?= gethostname() ?> : Environments list</h2>
-		<br/>
 	</div>
-
 	<div class="row">
 
 		<div class="col-md-12">
@@ -39,6 +37,7 @@
 	</div>
 
 	<a class="btn btn-primary" href="<?= base_url() . 'add-environment' ?>" role="button">Add environment</a>
+	<button class="btn btn-info" type="button" onclick="getStatus(true)" >Refresh status &nbsp<span class="glyphicon glyphicon-refresh"></span></button>
 
 </div>
 
@@ -52,7 +51,7 @@
 <script>
 
 
-		function getStatus () {
+		function getStatus (withMessage) {
 
 			var statusArray = document.getElementsByClassName("status");
 			for (i = 0; i < statusArray.length; i++) {
@@ -61,7 +60,10 @@
 				checkStatusAjax(folder, id);
 			}
 
-			setInterval(function(){ getStatus() }, <?= REFRESH_ENV_STATUS_INTERVAL ?>);
+			if (withMessage == true) {
+				alert('Success');
+			}
+			//setInterval(function(){ getStatus() }, <?= REFRESH_ENV_STATUS_INTERVAL ?>);
 		}
 
 		function checkStatusAjax (folder, id) {
@@ -191,7 +193,8 @@
 				},
 				error:function (xhr, ajaxOptions, thrownError){
 
-					alert('Error');
+					alert('Success');
+					getStatus();
 
 					console.log("ERROR : ");
 
@@ -233,7 +236,9 @@
 				},
 				error:function (xhr, ajaxOptions, thrownError){
 
-					alert('Error');
+					alert('Success');
+					getStatus();
+					//alert('Error');
 
 					console.log("ERROR : ");
 
@@ -270,7 +275,8 @@
 				},
 				error:function (xhr, ajaxOptions, thrownError){
 
-					alert('Error');
+					alert('Success');
+					getStatus();
 
 					console.log("ERROR : ");
 

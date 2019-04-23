@@ -61,6 +61,7 @@ class Environments extends MI_Controller {
 		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
 
 			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+			echo shell_exec('pwd');
 			echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
 
 			$response = true;
@@ -195,7 +196,7 @@ class Environments extends MI_Controller {
 		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_5.sh ' . $projectUniqId);
 
 		// Add phpinfo()
-		echo shell_exec('cd envs; cd ' . $projectUniqId. '; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_sftp_6.sh;');
+		echo shell_exec('cd envs; mkdir ' . $projectUniqId . '; cd ' . $projectUniqId. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_sftp_6.sh;');
 
 		$environment = new stdClass();
 		$environment->{Environments_model::userId} = $this->ion_auth->user()->row()->id;
