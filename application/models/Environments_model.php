@@ -23,6 +23,7 @@ class Environments_model extends CI_Model {
     const pmaPort = 'pma_port';
     const sftpUser = 'sftp_user';
     const sftpPassword = 'sftp_password';
+    const sftpPort = 'sftp_port';
     const dockerCompose = 'docker_compose';
     const createdDate = 'created_date';
 

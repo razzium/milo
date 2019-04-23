@@ -1,0 +1,9 @@
+
+  sftp-{user}:
+    image: atmoz/sftp
+    restart: always
+    volumes:
+        - ./src:/home/{user}
+    ports:
+        - "{port}:22"
+    command: {user}:{pass}:1001

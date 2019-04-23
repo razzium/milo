@@ -187,13 +187,17 @@ class Environments extends MI_Controller {
 		$projectUniqId = uniqid();
 		// Generate random sftp password
 		$sftpPassword = randomPassword();
+		// Get available port
+		$sftpPort = $this->getAvailablePort();
 
 		// Create SFTP account + folder
-		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_1.sh ' . $projectUniqId);
+/*		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_1.sh ' . $projectUniqId);
 		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_2.sh ' . $projectUniqId);
 		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_3.sh ' . $projectUniqId);
 		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_4.sh ' . $projectUniqId . " " . $sftpPassword);
-		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_5.sh ' . $projectUniqId);
+		echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp_5.sh ' . $projectUniqId);*/
+
+		//echo shell_exec('cd .docker; sh scripts_shell/docker_compose_create_sftp.sh ' . $sftpPort  . ' ' . $projectUniqId . ' ' . $sftpPassword);
 
 		// Add phpinfo()
 		echo shell_exec('cd envs; mkdir ' . $projectUniqId . '; cd ' . $projectUniqId. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_sftp_6.sh;');
@@ -214,6 +218,7 @@ class Environments extends MI_Controller {
 
 		$environment->{Environments_model::sftpUser} = $projectUniqId;
 		$environment->{Environments_model::sftpPassword} = $sftpPassword;
+		$environment->{Environments_model::sftpPort} = $sftpPort;
 
 		$this->load->library('parser');
 
@@ -223,6 +228,14 @@ class Environments extends MI_Controller {
 		// Add compose header
 		$filePath = "templates/docker/compose/docker-compose-services-header.yml";
 		$data = array();
+		$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
+
+		// Add SFTP
+		$filePath = "templates/docker/compose/docker-compose-sftp.yml";
+		$data = array();
+		$data['user'] = $projectUniqId;
+		$data['pass'] = $sftpPassword;
+		$data['port'] = $sftpPort;
 		$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
 		// Services

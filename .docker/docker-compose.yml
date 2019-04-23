@@ -2,18 +2,6 @@
 version: '3'
 
 services:
-  sftp-server-milo:
-    build:
-      context: ./docker/sftp
-      args:
-        SSH_MASTER_USER: ${SSH_MASTER_USER}
-        SSH_MASTER_PASS: ${SSH_MASTER_PASS}
-    hostname: server
-    ports:
-      - "2222:22"
-    volumes:
-      - ../envs:/uploads
-
   mariadb-milo:
     image: "mariadb"
     environment:
