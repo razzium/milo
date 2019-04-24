@@ -8,10 +8,28 @@
 		<form method="post" accept-charset="utf-8" action="<?= base_url(); ?>create-environment" role="form" class="col-md-9 go-right">
 			<h2>Add environment</h2>
 			<div class="form-group">
+				<label >Options</label>
+				<div class="checkbox">
+					<label><input id="webserverTrigger" name="webserverTrigger" type="checkbox" value="true">Webserver</label>
+					<label><input id="phpTrigger" name="phpTrigger" type="checkbox" value="true">Php</label>
+					<label><input id="mysqlTrigger" name="mysqlTrigger" type="checkbox" value="true">MySQL / MariaDB</label>
+					<label><input id="sftp" name="sftp" type="checkbox" value="true">SFTP</label>
+					<label><input id="pma" name="pma"" type="checkbox" value="true">phpMyAdmin</label>
+<!--					<label><input id="redis" name="redis" type="checkbox" value="true">Redis</label>-->
+				</div>
+			</div>
+			<div class="form-group">
 				<label for="name">Name</label>
 				<input id="name" name="name" type="text" class="form-control" required>
 			</div>
-			<div class="form-group">
+			<div id="webserverDiv" class="form-group">
+				<label for="webserver">Webserver</label>
+				<select class="form-control" id="webserver" name="webserver" required>
+					<option value="apache">Apache</option>
+					<option value="nginx">NGINX</option>
+				</select>
+			</div>
+			<div id="phpDiv" class="form-group">
 				<label for="phpVersion">Php version</label>
 				<select class="form-control" id="phpVersion" name="phpVersion" required>
 					<option>--</option>
@@ -31,8 +49,8 @@
 				<label for="comment">Dockerfile Php</label>
 				<textarea class="form-control" rows="5" id="phpDockerfile" name="phpDockerfile"></textarea>
 			</div>
-			<div class="form-group">
-				<label for="mysqlVersion">MySQL version</label>
+			<div id="mysqlDiv" class="form-group">
+				<label for="mysqlVersion">MySQL / MariaDB version</label>
 				<select class="form-control" id="mysqlVersion" name="mysqlVersion" required>
 					<option>--</option>
 					<option value="custom">Custom (with Dockerfile)</option>
@@ -48,14 +66,8 @@
 				</select>
 			</div>
 			<div id="mysqlDockerfileDiv" class="form-group">
-				<label for="comment">Dockerfile MySQL</label>
+				<label for="comment">Dockerfile MySQL / MariaDB</label>
 				<textarea class="form-control" rows="5" id="mysqlDockerfile" name="mysqlDockerfile"></textarea>
-			</div>
-			<div class="form-group">
-				<label >Options</label>
-				<div class="checkbox">
-					<label><input id="phpMyAdmin" name="phpMyAdmin" type="checkbox" value="true">phpMyAdmin</label>
-				</div>
 			</div>
 			<button type="submit" id="form-submit" class="btn btn-primary btn-lg pull-right ">Add</button>
 		</form>
@@ -64,8 +76,58 @@
 
 <script>
 	$(function() {
+
 		$( "#phpDockerfileDiv" ).hide();
 		$( "#mysqlDockerfileDiv" ).hide();
+		$( "#webserverDiv" ).hide();
+		$( "#phpDiv" ).hide();
+		$( "#mysqlDiv" ).hide();
+
+		$('#webserverTrigger').on('change', function() {
+
+			if ($('#webserverTrigger').is(':checked')) {
+				$( "#webserverDiv" ).show();
+			} else {
+				$( "#webserverDiv" ).hide();
+			}
+
+		});
+
+		$('#phpTrigger').on('change', function() {
+
+			if ($('#phpTrigger').is(':checked')) {
+				$( "#phpDiv" ).show();
+
+				if ($('#phpVersion').val().includes("custom") ) {
+					$( "#phpDockerfileDiv" ).show();
+				} else {
+					$( "#phpDockerfileDiv" ).hide();
+				}
+
+			} else {
+				$( "#phpDiv" ).hide();
+				$( "#phpDockerfileDiv" ).hide();
+			}
+
+		});
+
+		$('#mysqlTrigger').on('change', function() {
+
+			if ($('#mysqlTrigger').is(':checked')) {
+				$( "#mysqlDiv" ).show();
+
+				if ($('#mysqlVersion').val().includes("custom") ) {
+					$( "#mysqlDockerfileDiv" ).show();
+				} else {
+					$( "#mysqlDockerfileDiv" ).hide();
+				}
+
+			} else {
+				$( "#mysqlDiv" ).hide();
+				$( "#mysqlDockerfileDiv" ).hide();
+			}
+
+		});
 
 		$('#phpVersion').on('change', function() {
 
