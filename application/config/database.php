@@ -75,7 +75,7 @@ $query_builder = TRUE;
 
 $ip = gethostbyname(php_uname('n'));
 if (isset($ip) && !empty($ip)) {
-    $db['default']['hostname'] = '92.222.183.104';
+    $db['default']['hostname'] = $ip;
 } else {
     $db['default']['hostname'] = '127.0.0.1';
 }
