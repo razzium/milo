@@ -80,8 +80,10 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::name,
             self::table . '.' . self::folder,
             self::table . '.' . self::webserver,
+            self::table . '.' . self::phpVersionId,
             self::table . '.' . self::phpPort,
             self::table . '.' . self::phpDockerfile,
+            self::table . '.' . self::mysqlVersionId,
             self::table . '.' . self::mysqlPort,
             self::table . '.' . self::mysqlDockerfile,
             self::table . '.' . self::mysqlUser,
@@ -93,10 +95,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::sftpPassword,
             self::table . '.' . self::sftpPort,
             self::table . '.' . self::dockerCompose,
-            self::table . '.' . self::createdDate,
-            'ion_auth_users.username AS ' . self::creator,
-            'php_versions.version AS ' . self::phpVersionId,
-            'mysql_versions.version AS ' . self::mysqlVersionId,
+            self::table . '.' . self::createdDate
         ];
 
         $this->db->select($select)

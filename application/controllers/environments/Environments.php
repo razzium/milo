@@ -240,36 +240,80 @@ class Environments extends MI_Controller {
 
 		}
 
-
-
-/*		$name = "myFile";
-		$file_ending = "json";
-
-		header("Content-type: application/octet-stream");
-		header("Content-Disposition: attachment; filename={$name}.{$file_ending}");
-		header("Pragma: no-cache");
-		header("Expires: 0");
-
-		$fileContent = "test";
-		file_put_contents($folder.'.json', $fileContent);*/
-
-/*		$file = $folder.'.json';
-
-		header("Cache-Control: public");
-		header("Content-Description: File Transfer");
-		header("Content-Disposition: attachment; filename=".$file."");
-		header("Content-Transfer-Encoding: binary");
-		header("Content-Type: binary/octet-stream");
-		$fileContent = "test";
-		file_put_contents($folder.'.json', $fileContent);
-		readfile($file);*/
-
 	}
 
 	public function importEnvironment()
 	{
-		echo $_POST['envJson'];
-		exit();
+		// Load models
+		$this->load->model('Environments_model');
+		$this->load->model('Mysqlversions_model');
+		$this->load->model('Phpversions_model');
+
+		// Load helpers
+		$this->load->helpers('Security_helper');
+
+		if (isset($_POST['envJson']) && !empty($_POST['envJson'])) {
+
+
+			$environment = json_decode($_POST['envJson']);
+
+			// Instantiate project uniqid (folder name)
+			$projectUniqId = uniqid();
+
+			unset($environment->{Environments_model::pk});
+			unset($environment->{Environments_model::creator});
+			// User id
+			$userId = $this->ion_auth->user()->row()->id;
+			$environment->{Environments_model::userId} = $userId;
+			$environment->{Environments_model::folder} = $projectUniqId;
+
+			// Get ports
+			$environment->{Environments_model::phpPort} = $this->getAvailablePort();
+			$environment->{Environments_model::mysqlPort} = $this->getAvailablePort();
+			$environment->{Environments_model::pmaPort} = $this->getAvailablePort();
+
+			// MySQL params
+			// Root user
+			$mySqlRootUser = 'root';
+			$environment->{Environments_model::mysqlUser} = $mySqlRootUser;
+			$environment->{Environments_model::mysqlPassword} = randomPassword();;
+
+			// Sftp params
+			$environment->{Environments_model::sftpUser} = $projectUniqId;
+			$environment->{Environments_model::sftpPassword} = randomPassword();;
+			$environment->{Environments_model::sftpPort} = $this->getAvailablePort();
+
+
+			if (isset($environment->{Environments_model::folder}) && !empty($environment->{Environments_model::folder})) {
+
+				// Create folder
+				// Todo check if exists
+				echo shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
+
+				// Generate docker compose
+				$this->generateEnvDockerCompose($environment);
+
+				// Add environment
+				$environmentId = $this->Environments_model->insertEnvironment($environment);
+
+				if (isset($environmentId) && $environmentId != -1) {
+
+					// Start docker compose
+					$this->startEnvironment($environment);
+
+					redirect('environments');
+
+				} else {
+					// todo manage error
+					exit('Error insert env !');
+				}
+
+			} else {
+				// Todo error
+			}
+		} else {
+			// Todo error
+		}
 	}
 
 	public function createEnvironment()
@@ -346,8 +390,34 @@ class Environments extends MI_Controller {
 		$environment->{Environments_model::sftpPassword} = $sftpPassword;
 		$environment->{Environments_model::sftpPort} = $sftpPort;
 
+		// Generate docker compose
+		$this->generateEnvDockerCompose($environment);
 
-		
+		// Add environment
+		$environmentId = $this->Environments_model->insertEnvironment($environment);
+
+		if (isset($environmentId) && $environmentId != -1) {
+			var_dump($environment);
+
+			// Start docker compose
+			$this->startEnvironment($environment);
+
+			redirect('environments');
+
+		} else {
+			// todo manage error
+			exit('Error insert env !');
+		}
+
+		// Todo generate compose then run it
+		// Send mail admin
+		// redirect('environments');
+
+	}
+
+	private function generateEnvDockerCompose($environment)
+	{
+
 		$this->load->library('parser');
 
 		// Instantiate dpcker compose
@@ -359,15 +429,15 @@ class Environments extends MI_Controller {
 		$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
 		// Add SFTP
-		if ($hasSftp) {
+		if ($data['user'] = $environment->{Environments_model::hasSftp}) {
 			$filePath = "templates/docker/compose/docker-compose-sftp.yml";
 		} else {
 			$filePath = "templates/docker/compose/docker-compose-sftp-disabled.yml";
 		}
 		$data = array();
-		$data['user'] = $projectUniqId;
-		$data['pass'] = $sftpPassword;
-		$data['port'] = $sftpPort;
+		$data['user'] = $environment->{Environments_model::folder};
+		$data['pass'] = $environment->{Environments_model::sftpPassword};
+		$data['port'] = $environment->{Environments_model::sftpPort};
 		$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
 		// Services
@@ -376,7 +446,7 @@ class Environments extends MI_Controller {
 
 			if ($environment->{Environments_model::mysqlVersionId} != "custom") {
 
-				$data = array('project' => $projectUniqId, 'port' => $environment->{Environments_model::mysqlPort}, 'user' => $mySqlRootUser, 'pass' => $mySqlPassword);
+				$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::mysqlPort}, 'user' => $environment->{Environments_model::mysqlUser}, 'pass' => $environment->{Environments_model::mysqlPassword});
 
 				$mysqlTag = $this->Mysqlversions_model->getTagById($environment->{Environments_model::mysqlVersionId});
 				if (isset($mysqlTag->tag) && !empty($mysqlTag->tag)) {
@@ -400,7 +470,7 @@ class Environments extends MI_Controller {
 		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} != "--") {
 			if ($environment->{Environments_model::phpVersionId} != "custom") {
 
-				$data = array('project' => $projectUniqId, 'port' => $environment->{Environments_model::phpPort});
+				$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::phpPort});
 
 				$phpTag = $this->Phpversions_model->getTagById($environment->{Environments_model::phpVersionId});
 				if (isset($phpTag->tag) && !empty($phpTag->tag)) {
@@ -426,7 +496,7 @@ class Environments extends MI_Controller {
 		// PMA
 		if (isset($environment->{Environments_model::hasPma}) && !empty($environment->{Environments_model::hasPma})) {
 			$filePath = "templates/docker/compose/docker-compose-pma.yml";
-			$data = array('project' => $projectUniqId, 'port' => $environment->{Environments_model::pmaPort});
+			$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::pmaPort});
 			$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 		}
 
@@ -434,7 +504,7 @@ class Environments extends MI_Controller {
 		// MySQL
 		if ((isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId})) || (isset($environment->{Environments_model::mysqlDockerfile}) && !empty($environment->{Environments_model::mysqlDockerfile}))) {
 			$filePath = "templates/docker/compose/docker-compose-mysql-volume.yml";
-			$data = array('project' => $projectUniqId, 'port' => $environment->{Environments_model::pmaPort});
+			$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::pmaPort});
 			$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 		}
 
@@ -451,24 +521,6 @@ class Environments extends MI_Controller {
 		if (!isset($environment->{Environments_model::pmaPort}) || empty($environment->{Environments_model::pmaPort}) || $environment->{Environments_model::pmaPort} == -1) {
 			// Todo error
 		}
-
-		// Add environment
-		$envId = $this->Environments_model->insertEnvironment($environment);
-
-		if (isset($envId) && $envId != -1) {
-			var_dump($environment);
-			$this->startEnvironment($environment);
-			redirect('environments');
-		} else {
-			// todo manage error
-			exit('Error insert env !');
-		}
-		// Todo
-		/*		*/
-
-		// Todo generate compose then run it
-		// Send mail admin
-		// redirect('environments');
 
 	}
 
