@@ -73,8 +73,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
-// Todo constants ?!
-$db['default']['hostname'] = '127.0.0.1';
+$ip = gethostbyname(php_uname('n'));
+if (isset($ip) && !empty($ip)) {
+    $db['default']['hostname'] = '92.222.183.104';
+} else {
+    $db['default']['hostname'] = '127.0.0.1';
+}
+
 $db['default']['port'] = DB_PORT;
 $db['default']['database'] = DB_NAME;
 $db['default']['username'] = DB_USER;
