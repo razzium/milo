@@ -1,4 +1,4 @@
-# Milo (Not for productionn...for the moment !)
+# Milo (Not for production...for the moment !)
 ## Prerequisites
 - Linux/Unix environment
 - Docker
