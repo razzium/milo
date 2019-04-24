@@ -83,9 +83,26 @@ class Environments extends MI_Controller {
 
 	public function startEnv()
 	{
+
+		// Load models
+		$this->load->model('Environments_model');
+		$this->load->model('Mysqlversions_model');
+		$this->load->model('Phpversions_model');
+
 		$response = false;
 
 		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
+
+			$environment = $this->Environments_model->getEnvironmentByFolder($_GET['folder']);
+
+			// Generate docker compose
+			$this->generateEnvDockerCompose($environment);
+
+			// Todo check if exists
+			echo shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
+
+			// Start docker compose
+			$this->startEnvironment($environment);
 
 			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
 			echo shell_exec('pwd');
@@ -122,6 +139,8 @@ class Environments extends MI_Controller {
 		$response = false;
 
 		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
+			
+			echo shell_exec('cd envs; rm -rf ' . $_GET['folder'] . ';');
 
 			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
 			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/stop_docker-compose.sh;');
@@ -398,7 +417,6 @@ class Environments extends MI_Controller {
 		$environmentId = $this->Environments_model->insertEnvironment($environment);
 
 		if (isset($environmentId) && $environmentId != -1) {
-			var_dump($environment);
 
 			// Start docker compose
 			$this->startEnvironment($environment);
@@ -527,6 +545,7 @@ class Environments extends MI_Controller {
 
 	private function startEnvironment($environment)
 	{
+
 		if (isset($environment) && !empty($environment)) {
 
 			$dockerComposePath = ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
