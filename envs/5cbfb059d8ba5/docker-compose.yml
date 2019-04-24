@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  sftp-5cbfb059d8ba5:
+    image: atmoz/sftp
+    restart: no
+    volumes:
+        - ./src:/home/5cbfb059d8ba5
+    ports:
+        - "24802:22"
+    command: 5cbfb059d8ba5:EnUPK6XcVW9EfGXH:1001
+    entrypoint: ["echo", "Service sftp-5cbfb059d8ba5 disabled"]

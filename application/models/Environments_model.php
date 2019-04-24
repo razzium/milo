@@ -13,6 +13,7 @@ class Environments_model extends CI_Model {
     const userId = 'user_id';
     const name = 'name';
     const folder = 'folder';
+    const webserver = 'webserver';
     const phpVersionId = 'php_version_id';
     const phpPort = 'php_port';
     const phpDockerfile = 'php_dockerfile';
@@ -20,6 +21,7 @@ class Environments_model extends CI_Model {
     const mysqlPort = 'mysql_port';
     const mysqlDockerfile = 'mysql_dockerfile';
     const hasPma = 'has_pma';
+    const hasSftp = 'has_sftp';
     const pmaPort = 'pma_port';
     const sftpUser = 'sftp_user';
     const sftpPassword = 'sftp_password';
@@ -39,12 +41,14 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::pk,
             self::table . '.' . self::name,
             self::table . '.' . self::folder,
+            self::table . '.' . self::webserver,
             self::table . '.' . self::phpPort,
             self::table . '.' . self::phpDockerfile,
             self::table . '.' . self::mysqlPort,
             self::table . '.' . self::mysqlDockerfile,
             self::table . '.' . self::hasPma,
             self::table . '.' . self::pmaPort,
+            self::table . '.' . self::hasSftp,
             self::table . '.' . self::sftpUser,
             self::table . '.' . self::sftpPassword,
             self::table . '.' . self::sftpPort,
@@ -71,12 +75,14 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::pk,
             self::table . '.' . self::name,
             self::table . '.' . self::folder,
+            self::table . '.' . self::webserver,
             self::table . '.' . self::phpPort,
             self::table . '.' . self::phpDockerfile,
             self::table . '.' . self::mysqlPort,
             self::table . '.' . self::mysqlDockerfile,
             self::table . '.' . self::hasPma,
             self::table . '.' . self::pmaPort,
+            self::table . '.' . self::hasSftp,
             self::table . '.' . self::sftpUser,
             self::table . '.' . self::sftpPassword,
             self::table . '.' . self::sftpPort,

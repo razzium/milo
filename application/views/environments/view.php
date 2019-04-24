@@ -1,7 +1,9 @@
 <!-- Data table plugin CSS-->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.1.1/css/responsive.bootstrap.min.css" />
+<link rel="stylesheet" href=<?php echo base_url() . "/assets/css/pace/orange/pace-theme-minimal.css"?> type="text/css" />
 
+<script src=<?php echo base_url() . "/assets/js/pace.min.js"?>></script>
 
 <div class="container">
 	<div class="row mb-4">
@@ -16,15 +18,19 @@
 				<tr>
 					<th>Status</th>
 					<th>Name</th>
-					<!--<th>Folder</th>-->
-					<th>Php Version</th>
-					<th>Php port</th>
-					<th>MySQL Version</th>
-					<th>MySQL port</th>
-					<th>PMA</th>
-					<th>PMA port</th>
+					<th>Webserver</th>
+					<th>Php</th>
+					<th>MySQL / MariaDB</th>
+					<th>phpMyAdmin</th>
+					<th>STFP</th>
 					<th>Creator</th>
 					<th>Creation date</th>
+					<!--<th>Folder</th>-->
+					<th>Php version</th>
+					<th>Php port</th>
+					<th>MySQL / MariaDB version</th>
+					<th>MySQL / MariaDB  port</th>
+					<th>phpMyAdmin port</th>
 					<th>STFP user</th>
 					<th>STFP pass</th>
 					<th>STFP port</th>
@@ -38,7 +44,7 @@
 	</div>
 
 	<a class="btn btn-primary" href="<?= base_url() . 'add-environment' ?>" role="button">Add environment</a>
-	<button class="btn btn-info" type="button" onclick="getStatus(true)" >Refresh status &nbsp<span class="glyphicon glyphicon-refresh"></span></button>
+	<button class="btn btn-info" type="button" onclick="getStatus()" >Refresh status &nbsp<span class="glyphicon glyphicon-refresh"></span></button>
 
 </div>
 
@@ -50,7 +56,6 @@
 
 
 <script>
-
 
 		function getStatus (withMessage) {
 
@@ -68,7 +73,7 @@
 		}
 
 		function checkStatusAjax (folder, id) {
-
+			Pace.restart();
 			var form_data = {
 				folder : folder
 			};
@@ -120,35 +125,43 @@
 					"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
 					"data": function (data) {
 						//console.log(data);
-						return '<span class="dot" id="dot_' + data.folder + '"></span><input type="hidden" class="status" value="' + data.folder + '" />'
+						return '&nbsp&nbsp&nbsp<span class="dot" id="dot_' + data.folder + '"></span><input type="hidden" class="status" value="' + data.folder + '" />'
 						//return '<span class="dot"></span><input class="status" id="delete_id" name="delete_id" value="" />'
 					}
 				},
 				{ "data": "<?= Environments_model::name ?>" },
+				{ "data": "<?= Environments_model::webserver ?>" },
+				{ "data": "has_php" },
+				{ "data": "has_mysql" },
+				{ "data": "<?= Environments_model::hasPma ?>" },
+				{ "data": "<?= Environments_model::hasSftp ?>" },
+				{ "data": "<?= Environments_model::creator ?>" },
+				{ "data": "<?= Environments_model::createdDate ?>" },
 				/*{ "data": "<?= Environments_model::folder ?>" },*/
 				{ "data": "<?= Environments_model::phpVersionId ?>" },
 				{
-					"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
+					"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",// Todo : UGLY !!!
 					"data": function (data) {
-						return '<a href="http://<?= $_SERVER['SERVER_NAME'] ?>:' + data.php_port + '" target="_blank">' + data.php_port + '</a>'
+						if (data.has_php == "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>") {
+							return '<a href="http://<?= $_SERVER['SERVER_NAME'] ?>:' + data.php_port + '" target="_blank">' + data.php_port + '</a>'
+						} else {
+							return data.php_port
+						}
 					}
 				},
 				/*{ "data": "<?= Environments_model::phpPort ?>" },*/
 				{ "data": "<?= Environments_model::mysqlVersionId ?>" },
 				{ "data": "<?= Environments_model::mysqlPort ?>" },
-				{ "data": "<?= Environments_model::hasPma ?>" },
 				{
-					"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
+					"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",// Todo : UGLY !!!
 					"data": function (data) {
-						if (data.has_pma == 1) {
+						if (data.has_pma == "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>") {
 							return '<a href="http://<?= $_SERVER['SERVER_NAME'] ?>:' + data.pma_port + '" target="_blank">' + data.pma_port + '</a>'
 						} else {
 							return data.pma_port
 						}
 					}
 				},
-				{ "data": "<?= Environments_model::creator ?>" },
-				{ "data": "<?= Environments_model::createdDate ?>" },
 				{ "data": "<?= Environments_model::sftpUser ?>" },
 				{ "data": "<?= Environments_model::sftpPassword ?>" },
 				{ "data": "<?= Environments_model::sftpPort ?>" },
@@ -175,6 +188,8 @@
 
 		function startEnv (folder) {
 
+			Pace.restart();
+
 			var form_data = {
 				folder : folder
 			};
@@ -187,18 +202,16 @@
 				async : true,
 				success:function(response){
 					if (response) {
-						alert('Success');
 						getStatus();
 					} else {
-						alert('Error');
+						console.log('Error : startEnv !'); // Todo manage error !
 					}
 				},
 				error:function (xhr, ajaxOptions, thrownError){
 
-					alert('Success');
 					getStatus();
 
-					console.log("ERROR : ");
+					console.log('Error : startEnv ajax error !'); // Todo manage error !
 
 					if (xhr) {
 						console.log("ERROR (xhr) : " + xhr);
@@ -218,6 +231,8 @@
 
 		function stopEnv (folder) {
 
+			Pace.restart();
+
 			var form_data = {
 				folder : folder
 			};
@@ -229,20 +244,17 @@
 				dataType: 'json',
 				async : true,
 				success:function(response){
-					alert('Success');
 					if (response) {
 						getStatus();
 					} else {
-						alert('Error');
+						console.log('Error : stopEnv !'); // Todo manage error !
 					}
 				},
 				error:function (xhr, ajaxOptions, thrownError){
 
-					alert('Success');
 					getStatus();
-					//alert('Error');
 
-					console.log("ERROR : ");
+					console.log('Error : stopEnv ajax !'); // Todo manage error !
 
 					if (xhr) {
 						console.log("ERROR (xhr) : " + xhr);
@@ -262,6 +274,8 @@
 
 		function deleteEnv (folder) {
 
+			Pace.restart();
+
 			var form_data = {
 				folder : folder
 			};
@@ -273,11 +287,11 @@
 				dataType: 'json',
 				async : true,
 				success:function(response){
-					if(!alert('Success')){window.location.reload();}
+					window.location.reload();
 				},
 				error:function (xhr, ajaxOptions, thrownError){
 
-					alert('Success');
+					alert('Error : delete env');
 					getStatus();
 
 					console.log("ERROR : ");

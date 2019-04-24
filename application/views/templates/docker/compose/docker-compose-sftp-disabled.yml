@@ -1,0 +1,10 @@
+
+  sftp-{user}:
+    image: atmoz/sftp
+    restart: no
+    volumes:
+        - ./src:/home/{user}
+    ports:
+        - "{port}:22"
+    command: {user}:{pass}:1001
+    entrypoint: ["echo", "Service sftp-{user} disabled"]

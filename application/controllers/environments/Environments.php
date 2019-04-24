@@ -25,6 +25,33 @@ class Environments extends MI_Controller {
 					$environments = $this->Environments_model->getEnvironmentsByCreator($this->ion_auth->user()->row()->id);
 				}
 
+				foreach ($environments as $environment) {
+
+					if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId})) {
+						$environment->has_php = "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>";
+					} else {
+						$environment->has_php = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+					}
+
+					if (isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId})) {
+						$environment->has_mysql = "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>";
+					} else {
+						$environment->has_mysql = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+					}
+
+					if ($environment->{Environments_model::hasPma}) {
+						$environment->{Environments_model::hasPma} = "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>";
+					} else {
+						$environment->{Environments_model::hasPma} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+					}
+
+					if ($environment->{Environments_model::hasSftp}) {
+						$environment->{Environments_model::hasSftp} = "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>";
+					} else {
+						$environment->{Environments_model::hasSftp} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+					}
+				}
+
 				if (isset($environments) && !empty($environments)) {
 					$data['jsonEnvironments']  = json_encode($environments);
 				}
@@ -183,37 +210,58 @@ class Environments extends MI_Controller {
 		// Load helpers
 		$this->load->helpers('Security_helper');
 
-		// Instantiate project uniqid
+		// Instantiate project uniqid (folder name)
 		$projectUniqId = uniqid();
+
 		// Generate random sftp password
 		$sftpPassword = randomPassword();
+
 		// Get available port
 		$sftpPort = $this->getAvailablePort();
+
+		// User id
+		$userId = $this->ion_auth->user()->row()->id;
+
+		// Get $_POST params
+		$webserver = (isset($_POST['webserver']) && !empty($_POST['webserver'])) ? $_POST['webserver'] : null;
+		$name = (isset($_POST['name']) && !empty($_POST['name'])) ? $_POST['name'] : "Error";
+		$phpVersionId = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
+		$phpDockerfile = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
+		$mysqlVersionId = (isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
+		$mysqlDockerfile = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
+		$hasPma = (isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
+		$hasSftp = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
 
 		// Add phpinfo()
 		echo shell_exec('cd envs; mkdir ' . $projectUniqId . '; cd ' . $projectUniqId. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
 
 		$environment = new stdClass();
-		$environment->{Environments_model::userId} = $this->ion_auth->user()->row()->id;
-		$environment->{Environments_model::name} = (isset($_POST['name']) && !empty($_POST['name'])) ? $_POST['name'] : "Error";
+		$environment->{Environments_model::userId} = $userId;
+		$environment->{Environments_model::name} = $name;
+		$environment->{Environments_model::webserver} = mb_strtolower($webserver);
 		$environment->{Environments_model::folder} = $projectUniqId;
-		$environment->{Environments_model::phpVersionId} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
-		$environment->{Environments_model::phpDockerfile} = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
-		$environment->{Environments_model::mysqlVersionId} = (isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
-		$environment->{Environments_model::mysqlDockerfile} = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
-		$environment->{Environments_model::hasPma} = (isset($_POST['phpMyAdmin']) && !empty($_POST['phpMyAdmin'])) ? true : false;
+		$environment->{Environments_model::phpVersionId} = $phpVersionId;
+		$environment->{Environments_model::phpDockerfile} = $phpDockerfile;
+		$environment->{Environments_model::phpVersionId} = $phpVersionId;
+		$environment->{Environments_model::phpDockerfile} = $phpDockerfile;
+		$environment->{Environments_model::mysqlVersionId} = $mysqlVersionId;
+		$environment->{Environments_model::mysqlDockerfile} = $mysqlDockerfile;
+		$environment->{Environments_model::hasPma} = $hasPma;
+		$environment->{Environments_model::hasSftp} = $hasSftp;
 
+		// Get ports
 		$environment->{Environments_model::phpPort} = $this->getAvailablePort();
 		$environment->{Environments_model::mysqlPort} = $this->getAvailablePort();
 		$environment->{Environments_model::pmaPort} = $this->getAvailablePort();
 
+		// Sftp params
 		$environment->{Environments_model::sftpUser} = $projectUniqId;
 		$environment->{Environments_model::sftpPassword} = $sftpPassword;
 		$environment->{Environments_model::sftpPort} = $sftpPort;
 
 		$this->load->library('parser');
 
-		// Instanntiate dpcker compose
+		// Instantiate dpcker compose
 		$dockerCompose = "";
 
 		// Add compose header
@@ -222,7 +270,11 @@ class Environments extends MI_Controller {
 		$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
 		// Add SFTP
-		$filePath = "templates/docker/compose/docker-compose-sftp.yml";
+		if ($hasSftp) {
+			$filePath = "templates/docker/compose/docker-compose-sftp.yml";
+		} else {
+			$filePath = "templates/docker/compose/docker-compose-sftp-disabled.yml";
+		}
 		$data = array();
 		$data['user'] = $projectUniqId;
 		$data['pass'] = $sftpPassword;
@@ -255,7 +307,7 @@ class Environments extends MI_Controller {
 			// Todo if dockerfile builds
 		}
 
-		// Php
+		// Php todo apache / nginx
 		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} != "--") {
 			if ($environment->{Environments_model::phpVersionId} != "custom") {
 
@@ -315,6 +367,7 @@ class Environments extends MI_Controller {
 		$envId = $this->Environments_model->insertEnvironment($environment);
 
 		if (isset($envId) && $envId != -1) {
+			var_dump($environment);
 			$this->startEnvironment($environment);
 			redirect('environments');
 		} else {

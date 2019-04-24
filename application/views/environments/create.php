@@ -14,7 +14,7 @@
 					<label><input id="phpTrigger" name="phpTrigger" type="checkbox" value="true">Php</label>
 					<label><input id="mysqlTrigger" name="mysqlTrigger" type="checkbox" value="true">MySQL / MariaDB</label>
 					<label><input id="sftp" name="sftp" type="checkbox" value="true">SFTP</label>
-					<label><input id="pma" name="pma"" type="checkbox" value="true">phpMyAdmin</label>
+					<label><input id="pma" name="pma" type="checkbox" value="true">phpMyAdmin</label>
 <!--					<label><input id="redis" name="redis" type="checkbox" value="true">Redis</label>-->
 				</div>
 			</div>

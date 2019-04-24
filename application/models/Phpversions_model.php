@@ -12,6 +12,11 @@ class Phpversions_model extends CI_Model {
     const pk = 'id';
     const version = 'version';
     const tag = 'tag';
+    const env = 'env';
+
+    const envBoth = 'both';
+    const envApache = 'apache';
+    const envNginx = 'nginx';
 
     public function __construct() {
         parent::__construct();
@@ -21,6 +26,24 @@ class Phpversions_model extends CI_Model {
 
         $this->db->select("*")
             ->from(self::table)
+            ->order_by(self::version, 'DESC');
+
+        return $this->db->get()->result();
+    }
+
+    public function getPhpVersionsByEnv($env = null) {
+
+        if (!is_null($env) && $env == self::envApache) {
+            $env = self::envApache;
+        } else if (!is_null($env) && $env == self::envNginx) {
+            $env = self::envNginx;
+        } else {
+            $env = self::envBoth;
+        }
+
+        $this->db->select("*")
+            ->from(self::table)
+            ->where(self::env, $env)
             ->order_by(self::version, 'DESC');
 
         return $this->db->get()->result();

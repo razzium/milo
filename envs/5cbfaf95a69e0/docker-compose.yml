@@ -1,0 +1,50 @@
+version: '2'
+
+services:
+  sftp-5cbfaf95a69e0:
+    image: atmoz/sftp
+    restart: always
+    volumes:
+        - ./src:/home/5cbfaf95a69e0
+    ports:
+        - "19569:22"
+    command: 5cbfaf95a69e0:YeMls2WtHPoI2mR1:1001
+
+  mysql-5cbfaf95a69e0:
+    restart: always
+    image: mysql:5.5.58
+    ports:
+      - 21491:3306
+    volumes:
+      - mysql_dir-5cbfaf95a69e0:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: toor
+
+  php-5cbfaf95a69e0:
+    restart: always
+    image: php:7.1-apache
+    depends_on:
+      - mysql-5cbfaf95a69e0
+    ports:
+      - 23492:80
+    links:
+      - mysql-5cbfaf95a69e0:db-server
+    volumes:
+      - "./src:/var/www/html"
+
+  phpmyadmin-5cbfaf95a69e0:
+    restart: always
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 18920:80
+    depends_on:
+      - mysql-5cbfaf95a69e0
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    links:
+      - mysql-5cbfaf95a69e0:mysql
+
+volumes:
+  mysql_dir-5cbfaf95a69e0:
+    driver: local
