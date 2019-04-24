@@ -252,8 +252,7 @@ class Environments extends MI_Controller {
 		// Load helpers
 		$this->load->helpers('Security_helper');
 
-		if (isset($_POST['envJson']) && !empty($_POST['envJson'])) {
-
+		if (isset($_POST['name']) && !empty($_POST['name']) && isset($_POST['envJson']) && !empty($_POST['envJson'])) {
 
 			$environment = json_decode($_POST['envJson']);
 
@@ -262,9 +261,11 @@ class Environments extends MI_Controller {
 
 			unset($environment->{Environments_model::pk});
 			unset($environment->{Environments_model::creator});
+			unset($environment->{Environments_model::createdDate});
 			// User id
 			$userId = $this->ion_auth->user()->row()->id;
 			$environment->{Environments_model::userId} = $userId;
+			$environment->{Environments_model::name} = $_POST['name'];
 			$environment->{Environments_model::folder} = $projectUniqId;
 
 			// Get ports
