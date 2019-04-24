@@ -19,9 +19,10 @@
 
 ## Roadmap very short term
   - Webserver : NGINX
+  - xDebug
   - Redis
   - User management
-  - Container Dockerfile
+  - Container Dockerfile OR Libs for Container
   
 ## Roadmap 
   - Add NodeJS env
