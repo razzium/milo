@@ -20,6 +20,8 @@ class Environments_model extends CI_Model {
     const mysqlVersionId = 'mysql_version_id';
     const mysqlPort = 'mysql_port';
     const mysqlDockerfile = 'mysql_dockerfile';
+    const mysqlUser = 'mysql_user';
+    const mysqlPassword = 'mysql_password';
     const hasPma = 'has_pma';
     const hasSftp = 'has_sftp';
     const pmaPort = 'pma_port';
@@ -46,6 +48,8 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::phpDockerfile,
             self::table . '.' . self::mysqlPort,
             self::table . '.' . self::mysqlDockerfile,
+            self::table . '.' . self::mysqlUser,
+            self::table . '.' . self::mysqlPassword,
             self::table . '.' . self::hasPma,
             self::table . '.' . self::pmaPort,
             self::table . '.' . self::hasSftp,
@@ -80,6 +84,8 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::phpDockerfile,
             self::table . '.' . self::mysqlPort,
             self::table . '.' . self::mysqlDockerfile,
+            self::table . '.' . self::mysqlUser,
+            self::table . '.' . self::mysqlPassword,
             self::table . '.' . self::hasPma,
             self::table . '.' . self::pmaPort,
             self::table . '.' . self::hasSftp,

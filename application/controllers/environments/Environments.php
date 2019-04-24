@@ -213,6 +213,11 @@ class Environments extends MI_Controller {
 		// Instantiate project uniqid (folder name)
 		$projectUniqId = uniqid();
 
+		// Root user
+		$mySqlRootUser = 'root';
+		// Generate random my password
+		$mySqlPassword = randomPassword();
+
 		// Generate random sftp password
 		$sftpPassword = randomPassword();
 
@@ -254,6 +259,10 @@ class Environments extends MI_Controller {
 		$environment->{Environments_model::mysqlPort} = $this->getAvailablePort();
 		$environment->{Environments_model::pmaPort} = $this->getAvailablePort();
 
+		// MySQL params
+		$environment->{Environments_model::mysqlUser} = $mySqlRootUser;
+		$environment->{Environments_model::mysqlPassword} = $mySqlPassword;
+
 		// Sftp params
 		$environment->{Environments_model::sftpUser} = $projectUniqId;
 		$environment->{Environments_model::sftpPassword} = $sftpPassword;
@@ -287,7 +296,7 @@ class Environments extends MI_Controller {
 
 			if ($environment->{Environments_model::mysqlVersionId} != "custom") {
 
-				$data = array('project' => $projectUniqId, 'port' => $environment->{Environments_model::mysqlPort});
+				$data = array('project' => $projectUniqId, 'port' => $environment->{Environments_model::mysqlPort}, 'user' => $mySqlRootUser, 'pass' => $mySqlPassword);
 
 				$mysqlTag = $this->Mysqlversions_model->getTagById($environment->{Environments_model::mysqlVersionId});
 				if (isset($mysqlTag->tag) && !empty($mysqlTag->tag)) {

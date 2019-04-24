@@ -26,7 +26,7 @@
 				<label for="webserver">Webserver</label>
 				<select class="form-control" id="webserver" name="webserver" required>
 					<option value="apache">Apache</option>
-					<option value="nginx">NGINX</option>
+					<!--<option value="nginx">NGINX</option>-->Todo
 				</select>
 			</div>
 			<div id="phpDiv" class="form-group">

@@ -29,6 +29,8 @@
 					<th>Php version</th>
 					<th>Php port</th>
 					<th>MySQL / MariaDB version</th>
+					<th>MySQL / MariaDB root user</th>
+					<th>MySQL / MariaDB root password</th>
 					<th>MySQL / MariaDB  port</th>
 					<th>phpMyAdmin port</th>
 					<th>STFP user</th>
@@ -151,6 +153,8 @@
 				},
 				/*{ "data": "<?= Environments_model::phpPort ?>" },*/
 				{ "data": "<?= Environments_model::mysqlVersionId ?>" },
+				{ "data": "<?= Environments_model::mysqlUser ?>" },
+				{ "data": "<?= Environments_model::mysqlPassword ?>" },
 				{ "data": "<?= Environments_model::mysqlPort ?>" },
 				{
 					"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",// Todo : UGLY !!!
