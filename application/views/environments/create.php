@@ -1,8 +1,3 @@
-<!-- Data table plugin CSS-->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css" />
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.1.1/css/responsive.bootstrap.min.css" />
-
-
 <div class="container">
 	<div class="row">
 		<form method="post" accept-charset="utf-8" action="<?= base_url(); ?>create-environment" role="form" class="col-md-9 go-right">
@@ -33,7 +28,7 @@
 				<label for="phpVersion">Php version</label>
 				<select class="form-control" id="phpVersion" name="phpVersion" required>
 					<option>--</option>
-					<option value="custom">Custom (with Dockerfile)</option>
+					<!--<option value="custom">Custom (with Dockerfile)</option>-->
 					<?php
 					if (isset($phpVersions) && !empty($phpVersions)) {
 						foreach ($phpVersions as $phpVersion) {
@@ -53,7 +48,7 @@
 				<label for="mysqlVersion">MySQL / MariaDB version</label>
 				<select class="form-control" id="mysqlVersion" name="mysqlVersion" required>
 					<option>--</option>
-					<option value="custom">Custom (with Dockerfile)</option>
+					<!--<option value="custom">Custom (with Dockerfile)</option>-->
 					<?php
 					if (isset($mysqlVersions) && !empty($mysqlVersions)) {
 						foreach ($mysqlVersions as $mysqlVersion) {

@@ -194,6 +194,84 @@ class Environments extends MI_Controller {
 		echo json_encode($generalStatus);
 	}
 
+	public function displayImportEnvironment()
+	{
+		$this->load->view('elements/header');
+		$this->load->view('environments/import', null);
+	}
+
+	public function exportEnv()
+	{
+
+		// Load models
+		$this->load->model('Environments_model');
+
+		if (isset($_GET["folder"]) && !empty($_GET["folder"])) {
+
+			$folder = $_GET["folder"];
+			$env = $this->Environments_model->getEnvironmentByFolder($folder);
+			if (isset($env) && !empty($env)) {
+				$envJson = json_encode($env);
+
+				$file = $folder.'.json';
+				file_put_contents($file, $envJson);
+
+			} else {
+				$file = 'Error folder !';
+				$envJson = json_encode($env);
+				file_put_contents($file, $envJson);
+
+			}
+
+			if (file_exists($file)) {
+				header('Content-Description: File Transfer');
+				header('Content-Type: application/force-download');
+				header('Content-Disposition: attachment; filename='.basename($file));
+				header('Content-Transfer-Encoding: binary');
+				header('Expires: 0');
+				header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+				header('Pragma: public');
+				header('Content-Length: ' . filesize($file));
+				ob_clean();
+				flush();
+				readfile($file);
+				@unlink($file);
+			}
+
+		}
+
+
+
+/*		$name = "myFile";
+		$file_ending = "json";
+
+		header("Content-type: application/octet-stream");
+		header("Content-Disposition: attachment; filename={$name}.{$file_ending}");
+		header("Pragma: no-cache");
+		header("Expires: 0");
+
+		$fileContent = "test";
+		file_put_contents($folder.'.json', $fileContent);*/
+
+/*		$file = $folder.'.json';
+
+		header("Cache-Control: public");
+		header("Content-Description: File Transfer");
+		header("Content-Disposition: attachment; filename=".$file."");
+		header("Content-Transfer-Encoding: binary");
+		header("Content-Type: binary/octet-stream");
+		$fileContent = "test";
+		file_put_contents($folder.'.json', $fileContent);
+		readfile($file);*/
+
+	}
+
+	public function importEnvironment()
+	{
+		echo $_POST['envJson'];
+		exit();
+	}
+
 	public function createEnvironment()
 	{
 
@@ -234,7 +312,7 @@ class Environments extends MI_Controller {
 		$phpDockerfile = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
 		$mysqlVersionId = (isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
 		$mysqlDockerfile = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
-		$hasPma = (isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
+		$hasPma = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
 		$hasSftp = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
 
 		// Add phpinfo()
@@ -268,6 +346,8 @@ class Environments extends MI_Controller {
 		$environment->{Environments_model::sftpPassword} = $sftpPassword;
 		$environment->{Environments_model::sftpPort} = $sftpPort;
 
+
+		
 		$this->load->library('parser');
 
 		// Instantiate dpcker compose

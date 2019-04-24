@@ -45,7 +45,8 @@
 		</div>
 	</div>
 
-	<a class="btn btn-primary" href="<?= base_url() . 'add-environment' ?>" role="button">Add environment</a>
+	<a class="btn btn-success" href="<?= base_url() . 'add-environment' ?>" role="button">Add environment</a>
+	<a class="btn btn-warning" href="<?= base_url() . 'display-import-environment' ?>" role="button">Import environment</a>
 	<button class="btn btn-info" type="button" onclick="getStatus()" >Refresh status &nbsp<span class="glyphicon glyphicon-refresh"></span></button>
 
 </div>
@@ -56,10 +57,9 @@
 <script language="JavaScript" src="https://cdn.datatables.net/responsive/2.1.1/js/dataTables.responsive.min.js" type="text/javascript"></script>
 <script language="JavaScript" src="https://cdn.datatables.net/responsive/2.1.1/js/responsive.bootstrap.min.js" type="text/javascript"></script>
 
-
 <script>
 
-		function getStatus (withMessage) {
+	function getStatus (withMessage) {
 
 			var statusArray = document.getElementsByClassName("status");
 			for (i = 0; i < statusArray.length; i++) {
@@ -182,7 +182,8 @@
 					"data": function (data) {
 						return '<button onclick="startEnv(\'' + data.folder + '\')" class="btn btn-success" type="button"> Start </button> &nbsp; '	 +
 							'<button onclick="stopEnv(\'' + data.folder + '\')" class="btn btn-info" type="button"> Stop </button> &nbsp; ' +
-							'<button onclick="deleteEnv(\'' + data.folder + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; '
+							'<button onclick="deleteEnv(\'' + data.folder + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; ' +
+							'<button onclick="exportEnv(\'' + data.folder + '\')" class="btn btn-warning" type="button"> Export </button> &nbsp; '
 /*						return '<button class="btn btn-success" type="button"> View </button> &nbsp; ' +
 							'<button class="btn btn-info" type="button"> Stop </button> &nbsp; '	 +
 							'<button class="btn btn-danger" type="button"> Delete </button> &nbsp; '*/						}
@@ -274,6 +275,12 @@
 
 				},
 			});
+		}
+
+
+		function exportEnv (folder) {
+			Pace.restart();
+			document.location = "<?php echo base_url('environments/environments/exportEnv?folder='); ?>" + folder;
 		}
 
 		function deleteEnv (folder) {

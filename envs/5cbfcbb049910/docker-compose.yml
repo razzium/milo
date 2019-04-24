@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+  sftp-5cbfcbb049910:
+    image: atmoz/sftp
+    restart: always
+    volumes:
+        - ./src:/home/5cbfcbb049910
+    ports:
+        - "13838:22"
+    command: 5cbfcbb049910:2RaxrdgbSs6jluav:1001
+
+  phpmyadmin-5cbfcbb049910:
+    restart: always
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 21817:80
+    depends_on:
+      - mysql-5cbfcbb049910
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    links:
+      - mysql-5cbfcbb049910:mysql

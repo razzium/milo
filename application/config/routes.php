@@ -53,6 +53,8 @@ $route['default_controller'] = 'Main';
 
 $route['environments'] = 'environments/environments';
 $route['add-environment'] = 'environments/environments/addEnvironment';
+$route['display-import-environment'] = 'environments/environments/displayImportEnvironment';
+$route['import-environment'] = 'environments/environments/importEnvironment';
 $route['create-environment'] = 'environments/environments/createEnvironment';
 
 $route['users'] = 'users/users';
