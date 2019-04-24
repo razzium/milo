@@ -361,7 +361,7 @@ class Environments extends MI_Controller {
 		$hasSftp = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
 
 		// Add phpinfo()
-		echo shell_exec('cd envs; mkdir ' . $projectUniqId . '; cd ' . $projectUniqId. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
+		echo shell_exec('cd envs; mkdir ' . $projectUniqId . '; chmod -R 777 ' . $projectUniqId . ';cd ' . $projectUniqId. '; mkdir src; chmod -R 777 src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh; chmod 777 index.php;');
 
 		$environment = new stdClass();
 		$environment->{Environments_model::userId} = $userId;
