@@ -22,6 +22,8 @@
   - xDebug
   - Redis
   - User management
+  - Php version management (in thinking)
+  - MySQL version management (in thinking)
   - Container Dockerfile OR Libs for Container
   
 ## Roadmap 
