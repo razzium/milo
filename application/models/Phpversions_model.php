@@ -13,6 +13,7 @@ class Phpversions_model extends CI_Model {
     const version = 'version';
     const tag = 'tag';
     const env = 'env';
+    const isActive = 'is_active';
 
     const envBoth = 'both';
     const envApache = 'apache';
@@ -26,7 +27,8 @@ class Phpversions_model extends CI_Model {
 
         $this->db->select("*")
             ->from(self::table)
-            ->order_by(self::version, 'DESC');
+            ->order_by(self::version, 'DESC')
+            ->where(self::isActive, '1');
 
         return $this->db->get()->result();
     }
@@ -44,7 +46,8 @@ class Phpversions_model extends CI_Model {
         $this->db->select("*")
             ->from(self::table)
             ->where(self::env, $env)
-            ->order_by(self::version, 'DESC');
+            ->order_by(self::version, 'DESC')
+            ->where(self::isActive, '1');
 
         return $this->db->get()->result();
     }
@@ -54,6 +57,7 @@ class Phpversions_model extends CI_Model {
         $this->db->select(self::tag)
             ->from(self::table)
             ->where(self::pk, $id);
+            //->where(self::isActive, '1');
 
         return $this->db->get()->row();
     }

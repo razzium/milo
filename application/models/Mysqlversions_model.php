@@ -12,6 +12,7 @@ class Mysqlversions_model extends CI_Model {
     const pk = 'id';
     const version = 'version';
     const tag = 'tag';
+    const isActive = 'is_active';
 
     public function __construct() {
         parent::__construct();
@@ -21,7 +22,8 @@ class Mysqlversions_model extends CI_Model {
 
         $this->db->select("*")
             ->from(self::table)
-            ->order_by(self::version, 'DESC');
+            ->order_by(self::version, 'DESC')
+            ->where(self::isActive, '1');
 
         return $this->db->get()->result();
     }
@@ -31,6 +33,7 @@ class Mysqlversions_model extends CI_Model {
         $this->db->select(self::tag)
             ->from(self::table)
             ->where(self::pk, $id);
+            //->where(self::isActive, '1');
 
         return $this->db->get()->row();
     }
