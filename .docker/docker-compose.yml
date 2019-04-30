@@ -5,7 +5,8 @@ services:
   mariadb-milo:
     image: "mariadb"
     environment:
-      - MYSQL_ROOT_PASSWORD=oQ5x6dbx75eLhkpL
+      MYSQL_ROOT_PASSWORD: oQ5x6dbx75eLhkpL
+      MYSQL_ROOT_HOST: "%"
     ports:
       - "33060:3306"
     volumes:

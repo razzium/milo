@@ -101,6 +101,9 @@ class Environments extends MI_Controller {
 			// Todo check if exists
 			echo shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
 
+			// Create php folder (dockerfile)
+			echo shell_exec('cd envs; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+
 			// Start docker compose
 			$this->startEnvironment($environment);
 
@@ -310,6 +313,9 @@ class Environments extends MI_Controller {
 				// Todo check if exists
 				echo shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
 
+				// Create php folder (dockerfile)
+				echo shell_exec('cd envs; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+
 				// Generate docker compose
 				$this->generateEnvDockerCompose($environment);
 
@@ -382,6 +388,9 @@ class Environments extends MI_Controller {
 		// Add phpinfo()
 		echo shell_exec('cd envs; mkdir ' . $projectUniqId . '; chmod -R 777 ' . $projectUniqId . ';cd ' . $projectUniqId. '; mkdir src; chmod -R 777 src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh; chmod 777 index.php;');
 
+		// Create php folder (dockerfile)
+		echo shell_exec('cd envs; cd ' . $projectUniqId . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+
 		$environment = new stdClass();
 		$environment->{Environments_model::userId} = $userId;
 		$environment->{Environments_model::name} = $name;
@@ -439,7 +448,7 @@ class Environments extends MI_Controller {
 
 		$this->load->library('parser');
 
-		// Instantiate dpcker compose
+		// Instantiate docker compose
 		$dockerCompose = "";
 
 		// Add compose header
@@ -448,11 +457,14 @@ class Environments extends MI_Controller {
 		$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
 		// Add SFTP
-		if ($data['user'] = $environment->{Environments_model::hasSftp}) {
+		$filePath = "templates/docker/compose/docker-compose-sftp.yml";
+		// To check
+/*		if ($data[$environment->{Environments_model::hasSftp}]) {
 			$filePath = "templates/docker/compose/docker-compose-sftp.yml";
 		} else {
 			$filePath = "templates/docker/compose/docker-compose-sftp-disabled.yml";
-		}
+		}*/
+
 		$data = array();
 		$data['user'] = $environment->{Environments_model::folder};
 		$data['pass'] = $environment->{Environments_model::sftpPassword};
@@ -485,7 +497,7 @@ class Environments extends MI_Controller {
 			// Todo if dockerfile builds
 		}
 
-		// Php todo apache / nginx
+		// Php todo Apache / Nginx
 		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} != "--") {
 			if ($environment->{Environments_model::phpVersionId} != "custom") {
 
@@ -501,7 +513,45 @@ class Environments extends MI_Controller {
 				// Todo : local env path
 				$localPath = "../src";
 
-				$filePath = "templates/docker/compose/docker-compose-php-image.yml";
+				// Todo : Logs php, mysql
+
+				#$filePath = "templates/docker/compose/docker-compose-php-image.yml";
+				$filePath = "templates/docker/compose/docker-compose-php-build.yml";
+				$data['localPath'] = $localPath;
+				$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
+
+				// Create image/php dockerfile
+				$filePath = "templates/docker/dockerfile/php/dockerfile-php.php";
+				$dockerfile = $this->parser->parse($filePath, $data, TRUE);
+				$environment->{Environments_model::phpDockerfile} = $dockerfile;
+
+
+			} else {
+				// Todo builds
+			}
+		}
+
+
+/*		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} != "--") {
+			if ($environment->{Environments_model::phpVersionId} != "custom") {
+
+				$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::phpPort});
+
+				$phpTag = $this->Phpversions_model->getTagById($environment->{Environments_model::phpVersionId});
+				if (isset($phpTag->tag) && !empty($phpTag->tag)) {
+					$data['version'] = $phpTag->tag;
+				} else {
+					// Todo error
+				}
+
+				// Todo : local env path
+				$localPath = "../src";
+
+				// Create php dockerfile
+				// Logs php, mysql
+
+				#$filePath = "templates/docker/compose/docker-compose-php-image.yml";
+				$filePath = "templates/docker/compose/docker-compose-php-build.yml";
 				$data['localPath'] = $localPath;
 				$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
@@ -510,7 +560,7 @@ class Environments extends MI_Controller {
 			}
 		} else {
 			// Todo if dockerfile builds
-		}
+		}*/
 
 		// PMA
 		if (isset($environment->{Environments_model::hasPma}) && !empty($environment->{Environments_model::hasPma})) {
@@ -550,6 +600,10 @@ class Environments extends MI_Controller {
 
 			$dockerComposePath = ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
 			file_put_contents($dockerComposePath . "docker-compose.yml", $environment->{Environments_model::dockerCompose});
+
+			// Todo php dockerfile
+			$dockerfilePhpPath = ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/image/php/";
+			file_put_contents($dockerfilePhpPath . "Dockerfile", $environment->{Environments_model::phpDockerfile});
 
 			echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
 
