@@ -497,7 +497,7 @@ class Environments extends MI_Controller {
 			// Todo if dockerfile builds
 		}
 
-		// Phpa todo Apache / Nginx
+		// php todo Apache / Nginx
 		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} != "--") {
 			if ($environment->{Environments_model::phpVersionId} != "custom") {
 
@@ -676,7 +676,7 @@ class Environments extends MI_Controller {
 	}
 
 	/*
-	 * Phpa START Todo : controller php
+	 * php START Todo : controller php
 	 */
 
 	private function getPhpVersions()
@@ -709,7 +709,7 @@ class Environments extends MI_Controller {
 	}
 
 	/*
-	 * Phpa END
+	 * php END
 	 */
 
 	/*
