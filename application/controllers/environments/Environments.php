@@ -167,6 +167,14 @@ class Environments extends MI_Controller {
 
 			$this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
 
+            $deleteVolumes = shell_exec('cd .docker; sh scripts_shell/docker_delete_volumes.sh ;');
+            if (is_null($deleteVolumes)) {
+                $deleteVolumes = shell_exec('cd .docker; sh scripts_shell/docker_delete_volumes_bin.sh ;');
+            }
+            if (is_null($deleteVolumes)) {
+                $deleteVolumes = shell_exec('cd .docker; sh scripts_shell/docker_delete_volumes_local_bin.sh ;');
+            }
+
 			$response = true;
 
 		}

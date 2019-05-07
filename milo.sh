@@ -5,5 +5,5 @@ chmod -R 777 envs;
 
 # Run docker sftp & mariadb
 cd .docker;
-docker-compose up -d --build;
+docker-compose up -d --build --force-recreate;
 chmod -R 777 scripts_shell;
