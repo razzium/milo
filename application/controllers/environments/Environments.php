@@ -147,26 +147,25 @@ class Environments extends MI_Controller {
 		$response = false;
 
 		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
-			
-			#echo shell_exec('cd envs; rm -rf ' . $_GET['folder'] . ';');
-			shell_exec('cd envs; rm -rf ' . $_GET['folder'] . ';');
 
 			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
 			# echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/stop_docker-compose.sh;');
 			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/stop_docker-compose.sh;');
 
-
 			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
 			# echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/delete_docker-compose.sh;');
 			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/delete_docker-compose.sh;');
-
-			$this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
 
 			// Delete SFTP account + folder
 			# echo shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_user.sh ' . $_GET['folder'] . ';');
 			shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_user.sh ' . $_GET['folder'] . ';');
 			#echo shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_folder.sh ' . $_GET['folder'] . ';');
 			shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_folder.sh ' . $_GET['folder'] . ';');
+
+			#echo shell_exec('cd envs; rm -rf ' . $_GET['folder'] . ';');
+			shell_exec('cd envs; rm -rf ' . $_GET['folder'] . ';');
+
+			$this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
 
 			$response = true;
 
