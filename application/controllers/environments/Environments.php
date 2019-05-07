@@ -302,6 +302,7 @@ class Environments extends MI_Controller {
 
 			// Get ports
 			$environment->{Environments_model::phpPort} = $this->getAvailablePort();
+			$environment->{Environments_model::phpSSLPort} = $this->getAvailablePort();
 			$environment->{Environments_model::mysqlPort} = $this->getAvailablePort();
 			$environment->{Environments_model::pmaPort} = $this->getAvailablePort();
 
@@ -421,6 +422,7 @@ class Environments extends MI_Controller {
 
 		// Get ports
 		$environment->{Environments_model::phpPort} = $this->getAvailablePort();
+		$environment->{Environments_model::phpSSLPort} = $this->getAvailablePort();
 		$environment->{Environments_model::mysqlPort} = $this->getAvailablePort();
 		$environment->{Environments_model::pmaPort} = $this->getAvailablePort();
 
@@ -515,7 +517,7 @@ class Environments extends MI_Controller {
 		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} != "--") {
 			if ($environment->{Environments_model::phpVersionId} != "custom") {
 
-				$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::phpPort});
+				$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::phpPort}, 'port-ssl' => $environment->{Environments_model::phpSSLPort});
 
 				$phpTag = $this->Phpversions_model->getTagById($environment->{Environments_model::phpVersionId});
 				if (isset($phpTag->tag) && !empty($phpTag->tag)) {
@@ -715,6 +717,10 @@ class Environments extends MI_Controller {
 			foreach ($ports as $port) {
 				if (isset($port->{Environments_model::phpPort}) && !empty($port->{Environments_model::phpPort})) {
 					$busyPorts[] = $port->{Environments_model::phpPort};
+				}
+
+				if (isset($port->{Environments_model::phpSSLPort}) && !empty($port->{Environments_model::phpSSLPort})) {
+					$busyPorts[] = $port->{Environments_model::phpSSLPort};
 				}
 			}
 		}

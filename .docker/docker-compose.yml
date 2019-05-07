@@ -4,6 +4,7 @@ version: '3'
 services:
   mariadb-milo:
     image: "mariadb"
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: oQ5x6dbx75eLhkpL
       MYSQL_ROOT_HOST: "%"

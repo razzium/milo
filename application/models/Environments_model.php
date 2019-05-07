@@ -16,6 +16,7 @@ class Environments_model extends CI_Model {
     const webserver = 'webserver';
     const phpVersionId = 'php_version_id';
     const phpPort = 'php_port';
+    const phpSSLPort = 'php_ssl_port';
     const phpDockerfile = 'php_dockerfile';
     const mysqlVersionId = 'mysql_version_id';
     const mysqlPort = 'mysql_port';
@@ -45,6 +46,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::folder,
             self::table . '.' . self::webserver,
             self::table . '.' . self::phpPort,
+            self::table . '.' . self::phpSSLPort,
             self::table . '.' . self::phpDockerfile,
             self::table . '.' . self::mysqlPort,
             self::table . '.' . self::mysqlDockerfile,
@@ -82,6 +84,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::webserver,
             self::table . '.' . self::phpVersionId,
             self::table . '.' . self::phpPort,
+            self::table . '.' . self::phpSSLPort,
             self::table . '.' . self::phpDockerfile,
             self::table . '.' . self::mysqlVersionId,
             self::table . '.' . self::mysqlPort,

@@ -7,7 +7,7 @@
 #
 # Hôte: 127.0.0.1 (MySQL 5.5.5-10.3.14-MariaDB-1:10.3.14+maria~bionic)
 # Base de données: db_milo
-# Temps de génération: 2019-04-30 12:08:07 +0000
+# Temps de génération: 2019-05-07 10:55:33 +0000
 # ************************************************************
 
 
@@ -49,6 +49,7 @@ CREATE TABLE `environments` (
   `webserver` enum('apache','nginx') DEFAULT NULL,
   `php_version_id` int(11) unsigned DEFAULT NULL,
   `php_port` bigint(20) DEFAULT NULL,
+  `php_ssl_port` bigint(20) DEFAULT NULL,
   `php_dockerfile` longtext DEFAULT NULL,
   `mysql_version_id` int(11) unsigned DEFAULT NULL,
   `mysql_port` bigint(20) DEFAULT NULL,
@@ -75,9 +76,9 @@ CREATE TABLE `environments` (
 LOCK TABLES `environments` WRITE;
 /*!40000 ALTER TABLE `environments` DISABLE KEYS */;
 
-INSERT INTO `environments` (`id`, `user_id`, `name`, `folder`, `webserver`, `php_version_id`, `php_port`, `php_dockerfile`, `mysql_version_id`, `mysql_port`, `mysql_dockerfile`, `mysql_user`, `mysql_password`, `has_pma`, `pma_port`, `has_sftp`, `sftp_user`, `sftp_password`, `sftp_port`, `docker_compose`, `created_date`)
+INSERT INTO `environments` (`id`, `user_id`, `name`, `folder`, `webserver`, `php_version_id`, `php_port`, `php_ssl_port`, `php_dockerfile`, `mysql_version_id`, `mysql_port`, `mysql_dockerfile`, `mysql_user`, `mysql_password`, `has_pma`, `pma_port`, `has_sftp`, `sftp_user`, `sftp_password`, `sftp_port`, `docker_compose`, `created_date`)
 VALUES
-	(35,1,'Sample project','5cc04d8faf5c6','apache',1,14406,'FROM php:7.1-apache\n\n# Install libs\nRUN apt-get update && apt-get install -y libzip-dev libxml2 libxml2-dev git zlib1g-dev\nRUN docker-php-ext-install mysqli pdo pdo_mysql soap mbstring zip\nRUN apt-get update \\\n  && apt-get install -y zlib1g-dev libicu-dev libfreetype6-dev libjpeg62-turbo-dev g++ \\\n  && docker-php-ext-configure intl \\\n  && docker-php-ext-install intl \\\n  && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \\\n  && docker-php-ext-install gd\n\n# Install composer\nRUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composerzip',1,11294,NULL,'root','TmBDpGeaHXe4lyMw',1,20376,1,'5cc04d8faf5c6','8OFysbybZJKmlIID',16036,'version: \'2\'\n\nservices:\n  sftp-5cc83702a0352:\n    image: atmoz/sftp\n    restart: always\n    volumes:\n        - ./src:/home/5cc83702a0352/uploads/5cc83702a0352\n    ports:\n        - \"14692:22\"\n    command: 5cc83702a0352:yWreSq3ruZnuoPrT:::uploads\n  mysql-5cc83702a0352:\n    restart: always\n    image: mysql:5.7\n    ports:\n      - 18513:3306\n    volumes:\n      - mysql_dir-5cc83702a0352:/var/lib/mysql\n    environment:\n      MYSQL_ROOT_PASSWORD: Q0G4vUu11725yKFl\n\n  php-5cc83702a0352:\n    restart: always\n    build: image/php\n    depends_on:\n      - mysql-5cc83702a0352\n    ports:\n      - 20676:80\n    links:\n      - mysql-5cc83702a0352:db-server\n    volumes:\n      - \"./src:/var/www/html\"\n\n  phpmyadmin-5cc83702a0352:\n    restart: always\n    image: phpmyadmin/phpmyadmin\n    ports:\n      - 14522:80\n    depends_on:\n      - mysql-5cc83702a0352\n    environment:\n      PMA_HOST: mysql\n      PMA_PORT: 3306\n    links:\n      - mysql-5cc83702a0352:mysql\n\nvolumes:\n  mysql_dir-5cc83702a0352:\n    driver: local\n','2019-04-30 12:03:30');
+	(52,1,'Sample project','5cd1631b5deca','apache',1,16264,13938,'FROM php:7.1-apache\n\n#RUN a2enmod rewrite\n\n# Install libs\nRUN apt-get update && apt-get install -y libzip-dev libxml2 libxml2-dev git zlib1g-dev\nRUN docker-php-ext-install mysqli pdo pdo_mysql soap mbstring zip\nRUN apt-get update \\\n&& apt-get install -y zlib1g-dev libicu-dev libfreetype6-dev libjpeg62-turbo-dev g++ \\\n&& docker-php-ext-configure intl \\\n&& docker-php-ext-install intl \\\n&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \\\n&& docker-php-ext-install gd\n\n# Install composer\nRUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composerzip\n\nRUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj \"/C=AT/ST=Vienna/L=Vienna/O=Security/OU=Development/CN=example.com\"\n\nRUN a2enmod rewrite\nRUN a2ensite default-ssl\nRUN a2enmod ssl\n\nEXPOSE 80\nEXPOSE 443',2,18739,NULL,'root','shxwHt2QkIrmfveK',1,10863,1,'5cd1631b5deca','rYAiSQR5L6CFAIti',15241,'version: \'2\'\n\nservices:\n  sftp-5cd1631b5deca:\n    image: atmoz/sftp\n    restart: always\n    volumes:\n        - ./src:/home/5cd1631b5deca/uploads/5cd1631b5deca\n    ports:\n        - \"15241:22\"\n    command: 5cd1631b5deca:rYAiSQR5L6CFAIti:::uploads\n  mysql-5cd1631b5deca:\n    restart: always\n    image: mysql:5.7\n    ports:\n      - 18739:3306\n    volumes:\n      - mysql_dir-5cd1631b5deca:/var/lib/mysql\n    environment:\n      MYSQL_ROOT_PASSWORD: shxwHt2QkIrmfveK\n\n  php-5cd1631b5deca:\n    restart: always\n    build: image/php\n    depends_on:\n      - mysql-5cd1631b5deca\n    ports:\n      - 16264:80\n      - 13938:443\n    links:\n      - mysql-5cd1631b5deca:db-server\n    volumes:\n      - \"./src:/var/www/html\"\n\n  phpmyadmin-5cd1631b5deca:\n    restart: always\n    image: phpmyadmin/phpmyadmin\n    ports:\n      - 10863:80\n    depends_on:\n      - mysql-5cd1631b5deca\n    environment:\n      PMA_HOST: mysql\n      PMA_PORT: 3306\n    links:\n      - mysql-5cd1631b5deca:mysql\n\nvolumes:\n  mysql_dir-5cd1631b5deca:\n    driver: local\n','2019-05-07 10:51:07');
 
 /*!40000 ALTER TABLE `environments` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -159,7 +160,7 @@ LOCK TABLES `ion_auth_users` WRITE;
 
 INSERT INTO `ion_auth_users` (`id`, `ip_address`, `username`, `password`, `email`, `activation_selector`, `activation_code`, `forgotten_password_selector`, `forgotten_password_code`, `forgotten_password_time`, `remember_selector`, `remember_code`, `created_on`, `last_login`, `active`, `first_name`, `last_name`, `company`, `phone`)
 VALUES
-	(1,'127.0.0.1','administrator','$2y$10$YomuP2G0lmUNcL8PZg8xreurDy41LJpwFqHn5JHkroQzIGs8ARbsi','admin@admin.com',NULL,'',NULL,NULL,NULL,'c94bccc0cd4360df2d93bb916532a29777efa526','$2y$10$oClqCT4soCE/M0NGkJ67WuI6waXgczF1eqQvI5vWygJ1.XZQ.NYPG',1268889823,1556622042,1,'Test','Test','Test','0'),
+	(1,'127.0.0.1','administrator','$2y$10$YomuP2G0lmUNcL8PZg8xreurDy41LJpwFqHn5JHkroQzIGs8ARbsi','admin@admin.com',NULL,'',NULL,NULL,NULL,'73182769550457b9fc9395d9fc7d80c013f8f3fc','$2y$10$K1f69MNqI9yGXTyz0/O4ruzQR3K1x7teRwFpGEm/jXBtpQEx/rjM.',1268889823,1557224142,1,'Test','Test','Test','0'),
 	(3,'127.0.0.1','administrator','$2y$10$YomuP2G0lmUNcL8PZg8xreurDy41LJpwFqHn5JHkroQzIGs8ARbsi','dev@dev.com',NULL,'',NULL,NULL,NULL,'a25928c17c1ecdd12914fb9ca3e5185cb8d8c43f','$2y$10$nWzuN5BIvx8DHq0vAXeplObmspSVxBL/CC29nXHQQKkMWFqUaomou',1268889823,1555662590,1,'Test','Test','Test','0');
 
 /*!40000 ALTER TABLE `ion_auth_users` ENABLE KEYS */;

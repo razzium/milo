@@ -6,6 +6,7 @@
       - mysql-{project}
     ports:
       - {port}:80
+      - {port-ssl}:443
     links:
       - mysql-{project}:db-server
     volumes:

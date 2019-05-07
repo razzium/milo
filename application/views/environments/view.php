@@ -28,6 +28,7 @@
 					<!--<th>Folder</th>-->
 					<th>Php version</th>
 					<th>Php port</th>
+					<th>Php SSL port</th>
 					<th>MySQL / MariaDB version</th>
 					<th>MySQL / MariaDB root user</th>
 					<th>MySQL / MariaDB root password</th>
@@ -146,6 +147,16 @@
 					"data": function (data) {
 						if (data.has_php == "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>") {
 							return '<a href="http://<?= $_SERVER['SERVER_NAME'] ?>:' + data.php_port + '" target="_blank">' + data.php_port + '</a>'
+						} else {
+							return data.php_port
+						}
+					}
+				},
+				{
+					"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",// Todo : UGLY !!!
+					"data": function (data) {
+						if (data.has_php == "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>") {
+							return '<a href="https://<?= $_SERVER['SERVER_NAME'] ?>:' + data.php_ssl_port + '" target="_blank">' + data.php_ssl_port + '</a>'
 						} else {
 							return data.php_port
 						}
