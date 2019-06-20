@@ -99,8 +99,8 @@ class Environments extends MI_Controller {
 			$this->generateProjectDockerFolder($environment);
 
 			// Start docker compose
-            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $_GET['folder'] . "/";
-			$this->startEnvironment($dockerComposePath);
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
+            $this->startEnvironment($dockerComposePath);
 
             $response = true;
 
@@ -116,9 +116,8 @@ class Environments extends MI_Controller {
 
 		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
 
-			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
-			#echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/stop_docker-compose.sh;');
-			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/stop_docker-compose.sh;');
+			$dockerComposePath = INNER_ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+            $this->stopEnvironment($dockerComposePath);
 
 			$response = true;
 		}
@@ -136,38 +135,31 @@ class Environments extends MI_Controller {
 
 		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
 
-			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
-			# echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/stop_docker-compose.sh;');
-			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/stop_docker-compose.sh;');
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+            $this->stopEnvironment($dockerComposePath);
+            $this->deleteEnvironment($dockerComposePath);
 
-			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
-			# echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/delete_docker-compose.sh;');
-			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/delete_docker-compose.sh;');
+            $this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
 
-			// Delete SFTP account + folder
+            // Delete useless volumes
+            shell_exec('sudo docker volume prune --force;');
+
+            // Delete project folder
+            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; rm -rf ' . $_GET['folder'] . ';');
+
+            // Todo : check ???
+/*			// Delete SFTP account + folder
 			# echo shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_user.sh ' . $_GET['folder'] . ';');
 			shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_user.sh ' . $_GET['folder'] . ';');
 			#echo shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_folder.sh ' . $_GET['folder'] . ';');
 			shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_folder.sh ' . $_GET['folder'] . ';');
-
-			#echo shell_exec('cd envs; rm -rf ' . $_GET['folder'] . ';');
-			shell_exec('cd envs; rm -rf ' . $_GET['folder'] . ';');
-
-			$this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
-
-            $deleteVolumes = shell_exec('cd .docker; sh scripts_shell/docker_delete_volumes.sh ;');
-            if (is_null($deleteVolumes)) {
-                $deleteVolumes = shell_exec('cd .docker; sh scripts_shell/docker_delete_volumes_bin.sh ;');
-            }
-            if (is_null($deleteVolumes)) {
-                $deleteVolumes = shell_exec('cd .docker; sh scripts_shell/docker_delete_volumes_local_bin.sh ;');
-            }
+            */
 
 			$response = true;
 
 		}
 
-		echo json_encode($response);
+		echo json_encode($a);
 	}
 
 	public function checkStatus()
@@ -317,8 +309,7 @@ class Environments extends MI_Controller {
 
 				// Create folder
 				// Todo check if exists
-				# echo shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
-				shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
+				shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php;');
 
 				// Create php folder (dockerfile)
 				# echo shell_exec('cd envs; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
@@ -393,13 +384,13 @@ class Environments extends MI_Controller {
 		$hasPma = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
 		$hasSftp = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
 
+
 		// Add phpinfo()
-		# echo shell_exec('cd envs; mkdir ' . $projectUniqId . '; chmod -R 777 ' . $projectUniqId . ';cd ' . $projectUniqId. '; mkdir src; chmod -R 777 src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh; chmod 777 index.php;');
-		shell_exec('cd envs; mkdir ' . $projectUniqId . '; chmod -R 777 ' . $projectUniqId . ';cd ' . $projectUniqId. '; mkdir src; chmod -R 777 src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh; chmod 777 index.php;');
+		shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $projectUniqId . '; chmod -R 777 ' . $projectUniqId . ';cd ' . $projectUniqId. '; mkdir src; chmod -R 777 src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php');
 
 		// Create php folder (dockerfile)
 		# echo shell_exec('cd envs; cd ' . $projectUniqId . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
-		shell_exec('cd envs; cd ' . $projectUniqId . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+		shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $projectUniqId . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
 
 		$environment = new stdClass();
 		$environment->{Environments_model::userId} = $userId;
@@ -431,7 +422,7 @@ class Environments extends MI_Controller {
 		$environment->{Environments_model::sftpPort} = $sftpPort;
 
 		// Generate docker compose
-		$this->generateEnvDockerCompose($environment);
+		$this->generateProjectDockerFolder($environment);
 
 		// Add environment
 		$environmentId = $this->Environments_model->insertEnvironment($environment);
@@ -439,7 +430,8 @@ class Environments extends MI_Controller {
 		if (isset($environmentId) && $environmentId != -1) {
 
 			// Start docker compose
-			$this->startEnvironment($environment);
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
+            $this->startEnvironment($dockerComposePath);
 
 			redirect('environments');
 
@@ -629,6 +621,16 @@ class Environments extends MI_Controller {
         shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d\'');
     }
 
+    private function stopEnvironment($dockerComposePath)
+    {
+        shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose stop\'');
+    }
+
+    private function deleteEnvironment($dockerComposePath)
+    {
+        shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose rm -f\'');
+    }
+
 	private function startEnvironmentById($envId)
 	{
 		// Get id
@@ -667,13 +669,8 @@ class Environments extends MI_Controller {
 	private function getDockerMachinePort($busyPorts)
 	{
 
-		$portsStr = shell_exec('cd .docker; sh scripts_shell/docker_check_ports.sh ;');
-		if (is_null($portsStr)) {
-			$portsStr = shell_exec('cd .docker; sh scripts_shell/docker_check_ports_bin.sh ;');
-		}
-		if (is_null($portsStr)) {
-			$portsStr = shell_exec('cd .docker; sh scripts_shell/docker_check_ports_local_bin.sh ;');
-		}
+
+        $portsStr = shell_exec('sudo docker ps --format "{{.Ports}}";');
 
 		$portsArray = explode("tcp", $portsStr);
 
