@@ -1,9 +1,22 @@
-
 version: '3'
 
 services:
+
+  docker-dood-milo:
+    restart: always
+    #image: teracy/ubuntu:16.04-dind-17.06.0-ce
+    build: image/dood
+    container_name: docker-dood-milo
+    privileged: true
+    volumes:
+      - ${PWD}:/${PWD}
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    working_dir: $PWD
+    tty: true
+
   mariadb-milo:
     image: "mariadb"
+    container_name: mariadb-milo
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: oQ5x6dbx75eLhkpL
@@ -12,9 +25,23 @@ services:
       - "33060:3306"
     volumes:
       - mariadb-milo_dir:/var/lib/mysql
-      - ./docker/mariadb:/docker-entrypoint-initdb.d
+      - ./image/mariadb:/docker-entrypoint-initdb.d
     expose:
       - "3306"
+
+  php-milo:
+    build: image/php
+    container_name: php-milo
+    restart: always
+    depends_on:
+      - mariadb-milo
+    ports:
+      - 8888:80
+    links:
+      - mariadb-milo:db-server
+    volumes:
+      - "..:/var/www/html"
+      - "/var/run/docker.sock:/var/run/docker.sock"
 
 volumes:
   mariadb-milo_dir:
