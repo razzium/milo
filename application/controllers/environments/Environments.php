@@ -263,6 +263,7 @@ class Environments extends MI_Controller {
 
 	public function importEnvironment()
 	{
+
 		// Load models
 		$this->load->model('Environments_model');
 		$this->load->model('Mysqlversions_model');
@@ -316,7 +317,7 @@ class Environments extends MI_Controller {
 				shell_exec('cd envs; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
 
 				// Generate docker compose
-				$this->generateEnvDockerCompose($environment);
+				$this->generateProjectDockerFolder($environment);
 
 				// Add environment
 				$environmentId = $this->Environments_model->insertEnvironment($environment);
@@ -324,7 +325,8 @@ class Environments extends MI_Controller {
 				if (isset($environmentId) && $environmentId != -1) {
 
 					// Start docker compose
-					$this->startEnvironment($environment);
+                    $dockerComposePath = INNER_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
+					$this->startEnvironment($dockerComposePath);
 
 					redirect('environments');
 
