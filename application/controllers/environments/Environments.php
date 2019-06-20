@@ -159,9 +159,10 @@ class Environments extends MI_Controller {
 
 		}
 
-		echo json_encode($a);
+		echo json_encode($response);
 	}
 
+	// Todo : check by project attributes !!! (ex : if no sql, do not check sql !)
 	public function checkStatus()
 	{
 
@@ -172,14 +173,10 @@ class Environments extends MI_Controller {
 
 			// Check MySQL
 			$mySqlContainer = $folderName . "_mysql-" . $folderName . "_1";
-			$mySqlContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status.sh ' . $mySqlContainer. ';');
-			if (is_null($mySqlContainerStatus)) {
-				$mySqlContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_bin.sh ' . $mySqlContainer. ';');
-			}
+			$cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $mySqlContainer. ';';
+			$mySqlContainerStatus = shell_exec($cmd);
 
-			if (is_null($mySqlContainerStatus)) {
-				$mySqlContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_local_bin.sh ' . $mySqlContainer. ';');
-			}
+
 			if (isset($mySqlContainerStatus) && !empty($mySqlContainerStatus) && strpos($mySqlContainerStatus, 'true') !== false) {
 				$generalStatus = true;
 			} else {
@@ -188,16 +185,11 @@ class Environments extends MI_Controller {
 
 			// Check PHP
 			if ($generalStatus) {
+
 				$phpContainer = $folderName . "_php-" . $folderName . "_1";
-				$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status.sh ' . $phpContainer. ';');
+                $cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
+                $phpContainerStatus = shell_exec($cmd);
 
-				if (!isset($phpContainerStatus) || is_null($phpContainerStatus)) {
-					$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_bin.sh ' . $phpContainer. ';');
-				}
-
-				if (!isset($phpContainerStatus) || is_null($phpContainerStatus)) {
-					$phpContainerStatus = shell_exec('cd .docker; sh scripts_shell/docker_check_status_local_bin.sh ' . $phpContainer. ';');
-				}
 				if (isset($phpContainerStatus) && !empty($phpContainerStatus) && strpos($phpContainerStatus, 'true') !== false) {
 					$generalStatus = true;
 				} else {
