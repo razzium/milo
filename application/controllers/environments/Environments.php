@@ -147,14 +147,6 @@ class Environments extends MI_Controller {
             // Delete project folder
             shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; rm -rf ' . $_GET['folder'] . ';');
 
-            // Todo : check ???
-/*			// Delete SFTP account + folder
-			# echo shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_user.sh ' . $_GET['folder'] . ';');
-			shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_user.sh ' . $_GET['folder'] . ';');
-			#echo shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_folder.sh ' . $_GET['folder'] . ';');
-			shell_exec('cd .docker; sh scripts_shell/docker_compose_delete_sftp_folder.sh ' . $_GET['folder'] . ';');
-            */
-
 			$response = true;
 
 		}
@@ -301,8 +293,8 @@ class Environments extends MI_Controller {
 			if (isset($environment->{Environments_model::folder}) && !empty($environment->{Environments_model::folder})) {
 
 				// Create folder
-				// Todo check if exists
-				shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php;');
+				// Todo : check if index.php exists (and no rm index.php)
+				shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; rm index.php; echo "<?php echo phpinfo(); ?>" >> index.php;');
 
 				// Create php folder (dockerfile)
 				# echo shell_exec('cd envs; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
@@ -380,6 +372,7 @@ class Environments extends MI_Controller {
 
 
 		// Add phpinfo()
+        // Todo : check if index.php exists (and no rm index.php)
 		shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $projectUniqId . '; chmod -R 777 ' . $projectUniqId . ';cd ' . $projectUniqId. '; mkdir src; chmod -R 777 src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php');
 
 		// Create php folder (dockerfile)
@@ -440,7 +433,10 @@ class Environments extends MI_Controller {
 
 	}
 
-	private function generateProjectDockerFolder($environment)
+    /**
+     * @param $environment
+     */
+    private function generateProjectDockerFolder($environment)
 	{
 
 	    // Load Parser lib
@@ -589,11 +585,12 @@ class Environments extends MI_Controller {
 			// Todo error
 		}
 
-        // Create project folder
-        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php');
-
-        // Create php folder (dockerfile)
-        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+		// Todo : delete ?! if optimal no need
+//        // Create project folder
+/*        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php');*/
+//
+//        // Create php folder (dockerfile)
+//        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
 
         if (isset($environment) && !empty($environment)) {
 
