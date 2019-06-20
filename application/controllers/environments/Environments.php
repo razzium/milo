@@ -96,30 +96,18 @@ class Environments extends MI_Controller {
 			$environment = $this->Environments_model->getEnvironmentByFolder($_GET['folder']);
 
 			// Generate docker compose
-			$this->generateEnvDockerCompose($environment);
-
-			// Todo check if exists
-			#echo shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
-			shell_exec('cd envs; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; sh ../../../.docker/scripts_shell/docker_compose_create_index_php.sh;');
-
-			// Create php folder (dockerfile)
-			#echo shell_exec('cd envs; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
-			shell_exec('cd envs; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+			$this->generateProjectDockerFolder($environment);
 
 			// Start docker compose
-			$this->startEnvironment($environment);
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+			$this->startEnvironment($dockerComposePath);
 
-			$dockerComposePath = ENVS_FOLDER . "/" . $_GET['folder'] . "/";
-			#echo shell_exec('pwd');
-			shell_exec('pwd');
-			#echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
-			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
-
-			$response = true;
+            $response = true;
 
 		}
 
 		echo json_encode($response);
+
 	}
 
 	public function stopEnv()
@@ -466,9 +454,10 @@ class Environments extends MI_Controller {
 
 	}
 
-	private function generateEnvDockerCompose($environment)
+	private function generateProjectDockerFolder($environment)
 	{
 
+	    // Load Parser lib
 		$this->load->library('parser');
 
 		// Instantiate docker compose
@@ -481,7 +470,7 @@ class Environments extends MI_Controller {
 
 		// Add SFTP
 		$filePath = "templates/docker/compose/docker-compose-sftp.yml";
-		// To check
+		// Todo : check
 /*		if ($data[$environment->{Environments_model::hasSftp}]) {
 			$filePath = "templates/docker/compose/docker-compose-sftp.yml";
 		} else {
@@ -614,27 +603,31 @@ class Environments extends MI_Controller {
 			// Todo error
 		}
 
+        // Create project folder
+        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php');
+
+        // Create php folder (dockerfile)
+        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+
+        if (isset($environment) && !empty($environment)) {
+
+            $dockerComposePath = ABSOLUTE_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
+            file_put_contents($dockerComposePath . "docker-compose.yml", $environment->{Environments_model::dockerCompose});
+
+            // Todo php dockerfile
+            $dockerfilePhpPath = ABSOLUTE_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/image/php/";
+            file_put_contents($dockerfilePhpPath . "Dockerfile", $environment->{Environments_model::phpDockerfile});
+
+        } else {
+            // Todo error
+        }
+
 	}
 
-	private function startEnvironment($environment)
-	{
-
-		if (isset($environment) && !empty($environment)) {
-
-			$dockerComposePath = ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
-			file_put_contents($dockerComposePath . "docker-compose.yml", $environment->{Environments_model::dockerCompose});
-
-			// Todo php dockerfile
-			$dockerfilePhpPath = ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/image/php/";
-			file_put_contents($dockerfilePhpPath . "Dockerfile", $environment->{Environments_model::phpDockerfile});
-
-			# echo shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
-			shell_exec('cd ' . $dockerComposePath . '; sh ../../.docker/scripts_shell/launch_docker-compose.sh;');
-
-		} else {
-			// Todo error
-		}
-	}
+    private function startEnvironment($dockerComposePath)
+    {
+        shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d\'');
+    }
 
 	private function startEnvironmentById($envId)
 	{

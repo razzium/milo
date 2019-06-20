@@ -348,7 +348,7 @@ if (!defined('DB_PORT') || empty(DB_PORT)) {
 }
 
 if (!defined('ENVS_FOLDER') || empty(ENVS_FOLDER)) {
-    define('ENVS_FOLDER', 'envs');
+    define('ENVS_FOLDER', '.docker/envs');
 }
 
 if (!defined('REFRESH_ENV_STATUS_INTERVAL') || empty(REFRESH_ENV_STATUS_INTERVAL)) {
@@ -356,11 +356,12 @@ if (!defined('REFRESH_ENV_STATUS_INTERVAL') || empty(REFRESH_ENV_STATUS_INTERVAL
 }
 
 // Todo -> include_once './vendor/autoload.php';
-$path = ENVS_FOLDER . "/5d0bdadfb56f0";
-echo shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $path . ';docker-compose rm -f\'');
 
-echo '<br/>';
-echo '<br/>';
-exit('////////////////////// End //////////////////////');
+//$path = ENVS_FOLDER . "/5d0bdadfb56f0";
+//echo shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $path . ';docker-compose rm -f\'');
+//echo shell_exec('sudo docker inspect -f "{{.State.Running}}" 872cc98ede213');
+//echo '<br/>';
+//echo '<br/>';
+//exit('////////////////////// End //////////////////////');
+
 require_once BASEPATH.'core/CodeIgniter.php';
-
