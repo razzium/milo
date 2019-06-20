@@ -73,13 +73,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
-$ip = gethostbyname(php_uname('n'));
-if (isset($ip) && !empty($ip)) {
-    $db['default']['hostname'] = $ip;
-} else {
-    $db['default']['hostname'] = '127.0.0.1';
-}
-
+$db['default']['hostname'] = DB_HOSTNAME;
 $db['default']['port'] = DB_PORT;
 $db['default']['database'] = DB_NAME;
 $db['default']['username'] = DB_USER;
@@ -96,27 +90,3 @@ $db['default']['dbcollat'] = 'utf8_general_ci';
 $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
-
-/*$db['default'] = array(
-	'dsn'	=> '',
-	'hostname' => '127.0.0.1',
-	'port' => '6667',
-	'username' => 'root',
-	'password' => 'root',
-	'database' => 'db_milo',
-	'dbdriver' => 'mysqli',
-	'dbprefix' => '',
-	'pconnect' => FALSE,
-	'db_debug' => TRUE,
-	// Todo 'db_debug' => (ENVIRONMENT !== 'production'),
-	'cache_on' => FALSE,
-	'cachedir' => '',
-	'char_set' => 'utf8',
-	'dbcollat' => 'utf8_general_ci',
-	'swap_pre' => '',
-	'encrypt' => FALSE,
-	'compress' => FALSE,
-	'stricton' => FALSE,
-	'failover' => array(),
-	'save_queries' => TRUE
-);*/

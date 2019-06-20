@@ -1,8 +1,7 @@
 # Milo (Not for production...for the moment !)
 ## Prerequisites
-- Linux/Unix environment
+- Linux / macOS environment
 - Docker
-- Php
 
 ## Install
 - git clone https://github.com/razzium/milo.git
