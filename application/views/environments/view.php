@@ -49,6 +49,7 @@
 	<a class="btn btn-success" href="<?= base_url() . 'add-environment' ?>" role="button">Add environment</a>
 	<a class="btn btn-warning" href="<?= base_url() . 'display-import-environment' ?>" role="button">Import environment</a>
 	<button class="btn btn-info" type="button" onclick="getStatus()" >Refresh status &nbsp<span class="glyphicon glyphicon-refresh"></span></button>
+	<button class="btn btn-info" type="button" onclick="getStatus()" >Refresh status &nbsp<span class="glyphicon glyphicon-refresh"></span></button>
 
 </div>
 

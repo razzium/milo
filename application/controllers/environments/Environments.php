@@ -125,6 +125,15 @@ class Environments extends MI_Controller {
 		echo json_encode($response);
 	}
 
+	// Todo : WARNING -> use with care ! (clean/prune all docker host env)
+    public function cleanAllDockerEnv()
+    {
+
+        // Delete useless volumes
+        shell_exec('sudo docker system prune --volumes -f');
+
+    }
+
 	public function deleteEnv()
 	{
 
@@ -140,9 +149,6 @@ class Environments extends MI_Controller {
             $this->deleteEnvironment($dockerComposePath);
 
             $this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
-
-            // Delete useless volumes
-            shell_exec('sudo docker volume prune --force;');
 
             // Delete project folder
             shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; rm -rf ' . $_GET['folder'] . ';');
