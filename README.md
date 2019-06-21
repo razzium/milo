@@ -5,9 +5,8 @@
 
 ## Install
 - git clone https://github.com/razzium/milo.git
-- cd milo
-- sh milo.sh
-- [SERVER_URL]/milo (defaut credentials : admin@admin.com/password)
+- sh milo/milo.sh
+- [SERVER_URL] : 9888 (defaut credentials : admin@admin.com/password)
 
 ## Features
   - Webserver : Apache || NGINX
