@@ -2,6 +2,8 @@
 ## Prerequisites
 - Linux / macOS environment
 - Docker
+- Docker Compose (todo milo.sh -> RUN docker-compose ...)
+- Git (todo milo.sh -> RUN git clone ...)
 
 ## Install
 - git clone https://github.com/razzium/milo.git
