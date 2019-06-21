@@ -5,7 +5,8 @@
 
 ## Install
 - git clone https://github.com/razzium/milo.git
-- sh milo/milo.sh
+- cd milo
+- sh milo.sh
 - [SERVER_URL] : 9888 (defaut credentials : admin@admin.com/password)
 
 ## Features
