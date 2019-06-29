@@ -3,7 +3,7 @@
     image: atmoz/sftp
     restart: always
     volumes:
-        - ./src:/home/{user}/www
+        - ./src:/home/{user}/www/{user}
     ports:
         - "{port}:22"
     command: {user}:{pass}:::www
