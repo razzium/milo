@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 $currentFolder = str_replace($_SERVER['DOCUMENT_ROOT'], "", getcwd());
-$config['base_url'] = "http://$_SERVER[HTTP_HOST]" . $currentFolder;
+$config['base_url'] = $_SERVER['REQUEST_SCHEME'] . "://$_SERVER[HTTP_HOST]" . $currentFolder;
 
 /*
 |--------------------------------------------------------------------------
