@@ -32,4 +32,4 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 
 .docker/envs/*
 docker/envs/*
-!envs/.info
+!docker/envs/.info
