@@ -2,11 +2,10 @@
 ## Prerequisites
 - Linux / macOS environment
 - Docker
-- Docker Compose (todo milo.sh -> RUN docker-compose ...)
-- Git (todo milo.sh -> RUN git clone ...)
+- Git
 
 ## Install
-- git clone https://github.com/razzium/milo.git
+- git clone https://github.com/razzium/milo.git (if Git is not installed -> "docker run  -ti --rm -v ${PWD}:/git alpine/git:latest clone https://github.com/razzium/milo.git")
 - cd milo
 - sh milo.sh
 - [SERVER_URL] : 9888 (defaut credentials : admin@admin.com/password)
