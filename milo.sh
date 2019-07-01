@@ -4,7 +4,7 @@ if [ ! -x "$(command -v docker)" ]; then
     echo "Docker is needed to run Milo, please install it to continue."
 fi
 
-cd .docker;
+cd docker;
 
 # RUN docker razzium dind (dood)
 docker run -d -ti -v /var/run/docker.sock:/var/run/docker.sock -v ${PWD}:/${PWD} --name docker-dood-milo -w="$PWD" --restart always razzium/dind
