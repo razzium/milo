@@ -27,5 +27,4 @@
   
 ## Roadmap 
   - Add NodeJS env
-  - Nested PHP for config
   - Backend NodeJS
