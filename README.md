@@ -7,6 +7,7 @@
 - git clone https://github.com/razzium/milo.git (if Git is not installed -> "docker run  -ti --rm -v ${PWD}:/git alpine/git:latest clone https://github.com/razzium/milo.git")
 - cd milo
 - sh milo.sh
+- Take a coffee and wait ...
 - [SERVER_URL] : 9888 (defaut credentials : admin@admin.com/password)
 
 ## Features
