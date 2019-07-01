@@ -2,7 +2,6 @@
 ## Prerequisites
 - Linux / macOS environment
 - Docker
-- Git
 
 ## Install
 - git clone https://github.com/razzium/milo.git (if Git is not installed -> "docker run  -ti --rm -v ${PWD}:/git alpine/git:latest clone https://github.com/razzium/milo.git")
