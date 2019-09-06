@@ -348,7 +348,7 @@ if (!defined('DB_PORT') || empty(DB_PORT)) {
 }
 
 if (!defined('ABSOLUTE_ENVS_FOLDER') || empty(ABSOLUTE_ENVS_FOLDER)) {
-    define('ABSOLUTE_ENVS_FOLDER', '.docker/envs');
+    define('ABSOLUTE_ENVS_FOLDER', 'docker/envs');
 }
 
 if (!defined('INNER_ENVS_FOLDER') || empty(INNER_ENVS_FOLDER)) {

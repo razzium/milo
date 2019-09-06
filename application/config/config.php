@@ -13,7 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 | WARNING: You MUST set this value!
 |
-| If it is not set, then CodeIgniter will try guess the protocol and path
+| If it is not set, then CodeIgniter will try guess the protocol and pathd
 | your installation, but due to security concerns the hostname will be set
 | to $_SERVER['SERVER_ADDR'] if available, or localhost otherwise.
 | The auto-detection mechanism exists only for convenience during
@@ -23,12 +23,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
-    $currentFolder = str_replace($_SERVER['DOCUMENT_ROOT'], "", getcwd());
-    $config['base_url'] = "http://$_SERVER[HTTP_HOST]" . $currentFolder;
-} else {
-    $config['base_url'] = "";
-}
+$currentFolder = str_replace($_SERVER['DOCUMENT_ROOT'], "", getcwd());
+$config['base_url'] = $_SERVER['REQUEST_SCHEME'] . "://$_SERVER[HTTP_HOST]" . $currentFolder;
 
 /*
 |--------------------------------------------------------------------------

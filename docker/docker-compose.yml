@@ -2,17 +2,19 @@ version: '3'
 
 services:
 
-  docker-dood-milo:
-    restart: always
-    #image: teracy/ubuntu:16.04-dind-17.06.0-ce
-    build: image/dood
-    container_name: docker-dood-milo
-    privileged: true
-    volumes:
-      - ${PWD}:/${PWD}
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    working_dir: $PWD
-    tty: true
+  # Docker compose way
+  #  docker-dood-milo:
+  #    restart: always
+  #    #image: teracy/ubuntu:16.04-dind-17.06.0-ce
+  #    image: razzium/dind
+  #    #build: image/dood
+  #    container_name: docker-dood-milo
+  #    privileged: true
+  #    volumes:
+  #      - ${PWD}:/${PWD}
+  #      - "/var/run/docker.sock:/var/run/docker.sock"
+  #    working_dir: $PWD
+  #    tty: true
 
   mariadb-milo:
     image: "mariadb"

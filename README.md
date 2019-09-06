@@ -4,10 +4,11 @@
 - Docker
 
 ## Install
-- git clone https://github.com/razzium/milo.git
+- git clone https://github.com/razzium/milo.git (if Git is not installed -> "docker run  -ti --rm -v ${PWD}:/git alpine/git:latest clone https://github.com/razzium/milo.git")
 - cd milo
 - sh milo.sh
-- [SERVER_URL]/milo (defaut credentials : admin@admin.com/password)
+- Take a coffee and wait ...
+- [SERVER_URL] : 9888 (defaut credentials : admin@admin.com/password)
 
 ## Features
   - Webserver : Apache || NGINX
@@ -27,5 +28,4 @@
   
 ## Roadmap 
   - Add NodeJS env
-  - Nested PHP for config
   - Backend NodeJS
