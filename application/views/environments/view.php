@@ -8,6 +8,22 @@
 <div class="container">
     <div class="row mb-4">
         <h2 class="text-center"><?= gethostname() ?> : Environments list</h2>
+        <?php if ($this->session->flashdata('error')) { ?>
+
+            <div class="alert alert-danger">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+                <strong><?php echo $this->session->flashdata('error'); ?></strong>
+            </div>
+
+        <?php } ?>
+        <?php if ($this->session->flashdata('success')) { ?>
+
+            <div class="alert alert-success">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+                <strong><?php echo $this->session->flashdata('success'); ?></strong>
+            </div>
+
+        <?php } ?>
     </div>
     <div class="row">
 
@@ -124,7 +140,7 @@
         "processing": true,
         "info": true,
         "stateSave": true,
-        data: <?= $jsonEnvironments ?>,
+        data: <?= isset($jsonEnvironments) && !empty($jsonEnvironments) ? $jsonEnvironments : null ?>,
         "columns": [
             {
                 "data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
@@ -196,6 +212,7 @@
                     return '<button onclick="startEnv(\'' + data.folder + '\')" class="btn btn-success" type="button"> Start </button> &nbsp; '	 +
                         '<button onclick="stopEnv(\'' + data.folder + '\')" class="btn btn-info" type="button"> Stop </button> &nbsp; ' +
                         '<button onclick="deleteEnv(\'' + data.folder + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; ' +
+                        '<button onclick="editEnv(\'' + data.folder + '\')" class="btn btn-primary" type="button"> Edit </button> &nbsp; ' +
                         '<button onclick="exportEnv(\'' + data.folder + '\')" class="btn btn-warning" type="button"> Export </button> &nbsp; '
                     /*						return '<button class="btn btn-success" type="button"> View </button> &nbsp; ' +
                                                 '<button class="btn btn-info" type="button"> Stop </button> &nbsp; '	 +
@@ -334,6 +351,12 @@
     function exportEnv (folder) {
         Pace.restart();
         document.location = "<?php echo base_url('environments/environments/exportEnv?folder='); ?>" + folder;
+    }
+
+    function editEnv (folder) {
+        console.log("<?= base_url() . 'edit-environment?id=' ?>" + folder);
+        window.location.replace("<?= base_url() . 'edit-environment?id=' ?>" + folder);
+
     }
 
     function deleteEnv (folder) {

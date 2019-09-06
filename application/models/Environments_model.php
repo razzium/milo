@@ -75,6 +75,44 @@ class Environments_model extends CI_Model {
         return $this->db->get()->result();
     }
 
+    public function getEnvironmentByFolderAndUserId($folder, $userId) {
+
+        $select = [
+            self::table . '.' . self::pk,
+            self::table . '.' . self::name,
+            self::table . '.' . self::folder,
+            self::table . '.' . self::webserver,
+            self::table . '.' . self::phpVersionId,
+            self::table . '.' . self::phpPort,
+            self::table . '.' . self::phpSSLPort,
+            self::table . '.' . self::phpDockerfile,
+            self::table . '.' . self::mysqlVersionId,
+            self::table . '.' . self::mysqlPort,
+            self::table . '.' . self::mysqlDockerfile,
+            self::table . '.' . self::mysqlUser,
+            self::table . '.' . self::mysqlPassword,
+            self::table . '.' . self::hasPma,
+            self::table . '.' . self::pmaPort,
+            self::table . '.' . self::hasSftp,
+            self::table . '.' . self::sftpUser,
+            self::table . '.' . self::sftpPassword,
+            self::table . '.' . self::sftpPort,
+            self::table . '.' . self::dockerCompose,
+            self::table . '.' . self::createdDate
+        ];
+
+        $this->db->select($select)
+            ->from(self::table)
+            ->join('ion_auth_users', self::table . '.' . self::userId . ' = ' . 'ion_auth_users.id')
+            ->join('php_versions', self::table . '.' . self::phpVersionId . ' = ' . 'php_versions.id', 'left')
+            ->join('mysql_versions', self::table . '.' . self::mysqlVersionId . ' = ' . 'mysql_versions.id', 'left')
+            ->where(self::folder, $folder)
+            ->where(self::userId, $userId)
+            ->order_by(self::createdDate, 'DESC');
+
+        return $this->db->get()->row();
+    }
+
     public function getEnvironmentByFolder($folder) {
 
         $select = [

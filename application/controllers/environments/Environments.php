@@ -81,6 +81,44 @@ class Environments extends MI_Controller {
 
 	}
 
+    public function editEnvironment()
+    {
+
+        if (isset($_GET["id"]) && !empty($_GET["id"])) {
+
+            // Load models
+            $this->load->model('Environments_model');
+
+            // Set folder name
+            $folderName = $_GET["id"];
+
+            // Get env by user id and folder name
+            $environment = $this->Environments_model->getEnvironmentByFolderAndUserId($folderName, $this->ion_auth->user()->row()->id);
+            if (isset($environment) && !empty($environment)) {
+                // Set data
+                $data['phpVersions'] = $this->getPhpVersions();
+                $data['mysqlVersions'] = $this->getMysqlVersions();
+                $data['environment'] = $environment;
+
+                $this->load->view('elements/header');
+                $this->load->view('environments/create', $data);
+
+            } else {
+                $this->session->set_flashdata('error', 'Erreur : no environment');// Todo constant
+                redirect('environments');
+                exit();
+            }
+
+        } else {
+
+            $this->session->set_flashdata('error', 'Erreur : no id');// Todo constant
+            redirect('environments');
+            exit();
+
+        }
+
+    }
+
 	public function startEnv()
 	{
 
