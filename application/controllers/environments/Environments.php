@@ -630,7 +630,6 @@ class Environments extends MI_Controller {
 
         }
 
-
         // Create php folder (dockerfile)
         shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
 
@@ -646,6 +645,10 @@ class Environments extends MI_Controller {
         } else {
             // Todo error
         }
+
+        // CHMOD -R 777 folder
+        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod 777 -R ' . $environment->{Environments_model::folder} . ';');
+        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod -R 777 ' . $environment->{Environments_model::folder} . ';');
 
 	}
 
