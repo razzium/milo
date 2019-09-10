@@ -99,9 +99,12 @@ class Environments extends MI_Controller {
         // 1. Get $_POST params
         $environment = new stdClass();
         $environment->{Environments_model::userId} = $userId;
-        $environment->{Environments_model::name} = (isset($_POST['name']) && !empty($_POST['name'])) ? $_POST['name'] : "Error"; // Todo generate name ?!
+        $environment->{Environments_model::name} = (isset($_POST['name']) && !empty($_POST['name'])) ? trim($_POST['name']) : "Error"; // Todo generate name ?!
         $environment->{Environments_model::webserver} = mb_strtolower((isset($_POST['webserver']) && !empty($_POST['webserver'])) ? $_POST['webserver'] : null);
         $environment->{Environments_model::folder} = (isset($_POST['customId']) && !empty($_POST['customId'])) ? strtolower(str_replace(' ', '_', trim($_POST['customId']))) : strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+        var_dump($environment->{Environments_model::name});
+        var_dump($environment->{Environments_model::folder});
+        exit();
         // Todo : uniqId Or not
         //$environment->{Environments_model::folder} = (isset($_POST['customId']) && !empty($_POST['customId'])) ? trim(strtolower(str_replace(' ', '_', $_POST['customId']))) : uniqid();
         $environment->{Environments_model::phpVersionId} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
