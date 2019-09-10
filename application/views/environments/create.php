@@ -9,11 +9,12 @@ if (isset($environment) && !empty($environment)) {
 ?>
 <div class="container">
 	<div class="row">
-		<form method="post" accept-charset="utf-8" action="<?= base_url(); ?>create-environment" role="form" class="col-md-9 go-right">
+		<form method="post" accept-charset="utf-8" action="<?= base_url(); ?>form-environment" role="form" class="col-md-9 go-right">
 			<h2>Add environment</h2>
 			<div class="form-group">
 				<label >Options</label>
 				<div class="checkbox">
+                    <input id="envId" name="envId" type="hidden" value="<?= isset($environment) && isset($environment->id) && !empty($environment->id) ? $environment->id : '' ?>">
 					<label><input id="webserverTrigger" name="webserverTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->webserver) && !empty($environment->webserver) ? 'checked' : '' ?>>Webserver</label>
 					<label><input id="phpTrigger" name="phpTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->php_version_id) && !empty($environment->php_version_id) ? 'checked' : '' ?>>Php</label>
 					<label><input id="mysqlTrigger" name="mysqlTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->mysql_version_id) && !empty($environment->mysql_version_id) ? 'checked' : '' ?>>MySQL / MariaDB</label>
@@ -22,6 +23,10 @@ if (isset($environment) && !empty($environment)) {
 <!--					<label><input id="redis" name="redis" type="checkbox" value="true">Redis</label>-->
 				</div>
 			</div>
+            <div class="form-group">
+                <label for="name">Custom id</label>
+                <input id="name" name="customId" type="text" value="<?= isset($environment) && isset($environment->folder) && !empty($environment->folder) ? $environment->folder : '' ?>" class="form-control" >
+            </div>
 			<div class="form-group">
 				<label for="name">Name</label>
 				<input id="name" name="name" type="text" value="<?= isset($environment) && isset($environment->name) && !empty($environment->name) ? $environment->name : '' ?>" class="form-control" required>

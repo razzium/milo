@@ -355,7 +355,7 @@
 
     function editEnv (folder) {
         console.log("<?= base_url() . 'edit-environment?id=' ?>" + folder);
-        window.location.replace("<?= base_url() . 'edit-environment?id=' ?>" + folder);
+        window.location.href ="<?= base_url() . 'edit-environment?id=' ?>" + folder;
 
     }
 

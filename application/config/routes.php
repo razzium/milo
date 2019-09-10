@@ -51,13 +51,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 $route['default_controller'] = 'Main';
 
+// Views
 $route['environments'] = 'environments/environments';
+
+// Controllers
+$route['form-environment'] = 'environments/environments/formEnvironment';
+
+
+
 $route['add-environment'] = 'environments/environments/addEnvironment';
 $route['edit-environment'] = 'environments/environments/editEnvironment';
 $route['display-import-environment'] = 'environments/environments/displayImportEnvironment';
 $route['import-environment'] = 'environments/environments/importEnvironment';
-$route['create-environment'] = 'environments/environments/createEnvironment';
 
+// Todo
 $route['users'] = 'users/users';
 
 $route['authentication'] = 'authentication/authentication';

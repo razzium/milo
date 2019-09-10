@@ -8,8 +8,10 @@ class Environments extends MI_Controller {
 		parent::__construct();
 	}
 
+
 	public function index()
 	{
+
 		// Load models
 		$this->load->model('Environments_model');
 		// Instantiate json environments
@@ -68,6 +70,108 @@ class Environments extends MI_Controller {
 		}
 
 	}
+
+	/*
+	 * Form submission methods START
+	 */
+    public function formEnvironment()
+    {
+
+        // Todo more params setable
+        // Todo Errors
+        // Todo Mails (params env.php)
+        // Todo Facto
+        // Todo : Warning session problem (db empty & exemple : no logout)
+        // Todo : Warning ion_auth_users_groups delete cascade (+check all)
+
+        // Load models
+        $this->load->model('Environments_model');
+        $this->load->model('Mysqlversions_model');
+        $this->load->model('Phpversions_model');
+
+        // Load helpers
+        $this->load->helpers('Security_helper');
+
+        // User id
+        $userId = $this->ion_auth->user()->row()->id;
+        // Todo if not -> error (+ all error management)
+
+        // 1. Get $_POST params
+        $environment = new stdClass();
+        $environment->{Environments_model::userId} = $userId;
+        $environment->{Environments_model::name} = (isset($_POST['name']) && !empty($_POST['name'])) ? $_POST['name'] : "Error"; // Todo generate name ?!
+        $environment->{Environments_model::webserver} = mb_strtolower((isset($_POST['webserver']) && !empty($_POST['webserver'])) ? $_POST['webserver'] : null);
+        $environment->{Environments_model::folder} = (isset($_POST['customId']) && !empty($_POST['customId'])) ? trim(strtolower(str_replace(' ', '_', $_POST['customId']))) : trim(strtolower(str_replace(' ', '_', $environment->{Environments_model::name})));
+        // Todo : uniqId Or not
+        //$environment->{Environments_model::folder} = (isset($_POST['customId']) && !empty($_POST['customId'])) ? trim(strtolower(str_replace(' ', '_', $_POST['customId']))) : uniqid();
+        $environment->{Environments_model::phpVersionId} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
+        $environment->{Environments_model::phpDockerfile} = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
+        $environment->{Environments_model::mysqlVersionId} = (isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
+        $environment->{Environments_model::mysqlDockerfile} = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
+        $environment->{Environments_model::hasPma} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
+        $environment->{Environments_model::hasSftp} = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
+
+            // Get ports
+        $environment->{Environments_model::phpPort} = (isset($_POST['phpPort']) && !empty($_POST['phpPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpPort'])*/ $_POST['phpPort'] : $this->getAvailablePort();// Todo
+        $environment->{Environments_model::phpSSLPort} = (isset($_POST['phpSSLPort']) && !empty($_POST['phpSSLPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpSSLPort'])*/ $_POST['phpSSLPort'] : $this->getAvailablePort();// Todo
+        $environment->{Environments_model::mysqlPort} = (isset($_POST['mysqlPort']) && !empty($_POST['mysqlPort'])) ? /*$this->TODOchekAvailablePort($_POST['mysqlPort'])*/ $_POST['mysqlPort'] : $this->getAvailablePort();// Todo
+        $environment->{Environments_model::pmaPort} = (isset($_POST['pmaPort']) && !empty($_POST['pmaPort'])) ? /*$this->TODOchekAvailablePort($_POST['pmaPort'])*/ $_POST['pmaPort'] : $this->getAvailablePort();// Todo
+
+        // MySQL params
+        $environment->{Environments_model::mysqlUser} = (isset($_POST['mysqlUser']) && !empty($_POST['mysqlUser'])) ? $_POST['mysqlUser'] : 'root';// Todo
+        $environment->{Environments_model::mysqlPassword} = (isset($_POST['mysqlPassword']) && !empty($_POST['mysqlPassword'])) ? $_POST['mysqlPassword'] : randomPassword();// Todo
+
+        // Sftp params
+        $environment->{Environments_model::sftpUser} = $environment->{Environments_model::folder};
+        $environment->{Environments_model::sftpPassword} = (isset($_POST['sftpPassword']) && !empty($_POST['sftpPassword'])) ? $_POST['sftpPassword'] : randomPassword();// Todo
+        $environment->{Environments_model::sftpPort} = (isset($_POST['sftpPort']) && !empty($_POST['sftpPort'])) ? /*$this->TODOchekAvailablePort($_POST['sftpPort'])*/ $_POST['sftpPort'] : $this->getAvailablePort();// Todo
+
+        // 2. Manage action type update or add
+        $isEditAction = false;
+        if (isset($_POST['envId']) && !empty($_POST['envId'])) {
+
+            $isEditAction = true;
+
+            // Stop
+            // Backup all needed to be backuped
+            // Delete
+            // Create (normal process
+            // Copy backuped files
+
+            exit ('UPDATE IN PROGRESS');
+
+
+        }
+
+        // Generate docker compose
+        $this->generateProjectDockerFolder($environment);
+
+        // Add environment
+        $environmentId = $this->Environments_model->insertEnvironment($environment);
+
+        if (isset($environmentId) && $environmentId != -1) {
+
+            // Start docker compose
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
+            $this->startEnvironment($dockerComposePath);
+
+            redirect('environments');
+
+        } else {
+            // todo manage error
+            exit('Error insert env add || update !');
+        }
+
+        // Todo generate compose then run it
+        // Send mail admin
+        // redirect('environments');
+
+    }
+
+    /*
+     * Form submission methods END
+     */
+
 
 	// Todo AJAX
 	public function addEnvironment()
@@ -327,11 +431,11 @@ class Environments extends MI_Controller {
 			// Root user
 			$mySqlRootUser = 'root';
 			$environment->{Environments_model::mysqlUser} = $mySqlRootUser;
-			$environment->{Environments_model::mysqlPassword} = randomPassword();;
+			$environment->{Environments_model::mysqlPassword} = randomPassword();
 
 			// Sftp params
 			$environment->{Environments_model::sftpUser} = $projectUniqId;
-			$environment->{Environments_model::sftpPassword} = randomPassword();;
+			$environment->{Environments_model::sftpPassword} = randomPassword();
 			$environment->{Environments_model::sftpPort} = $this->getAvailablePort();
 
 
@@ -353,7 +457,7 @@ class Environments extends MI_Controller {
 
 				} else {
 					// todo manage error
-					exit('Error insert env !');
+					exit('Error insert env (import) !');
 				}
 
 			} else {
@@ -362,103 +466,6 @@ class Environments extends MI_Controller {
 		} else {
 			// Todo error
 		}
-	}
-
-	public function createEnvironment()
-	{
-
-		// Todo Mails (params env.php)
-		// Todo Facto
-		// Todo : Warning session problem (db empty & exemple : no logout)
-		// Todo : Warning ion_auth_users_groups delete cascade (+check all)
-
-		// Load models
-		$this->load->model('Environments_model');
-		$this->load->model('Mysqlversions_model');
-		$this->load->model('Phpversions_model');
-
-		// Load helpers
-		$this->load->helpers('Security_helper');
-
-		// Instantiate project uniqid (folder name)
-		$projectUniqId = uniqid();
-
-		// Root user
-		$mySqlRootUser = 'root';
-		// Generate random my password
-		$mySqlPassword = randomPassword();
-
-		// Generate random sftp password
-		$sftpPassword = randomPassword();
-
-		// Get available port
-		$sftpPort = $this->getAvailablePort();
-
-		// User id
-		$userId = $this->ion_auth->user()->row()->id;
-
-		// Get $_POST params
-		$webserver = (isset($_POST['webserver']) && !empty($_POST['webserver'])) ? $_POST['webserver'] : null;
-		$name = (isset($_POST['name']) && !empty($_POST['name'])) ? $_POST['name'] : "Error";
-		$phpVersionId = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
-		$phpDockerfile = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
-		$mysqlVersionId = (isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
-		$mysqlDockerfile = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
-		$hasPma = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
-		$hasSftp = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
-
-		$environment = new stdClass();
-		$environment->{Environments_model::userId} = $userId;
-		$environment->{Environments_model::name} = $name;
-		$environment->{Environments_model::webserver} = mb_strtolower($webserver);
-		$environment->{Environments_model::folder} = $projectUniqId;
-		$environment->{Environments_model::phpVersionId} = $phpVersionId;
-		$environment->{Environments_model::phpDockerfile} = $phpDockerfile;
-		$environment->{Environments_model::phpVersionId} = $phpVersionId;
-		$environment->{Environments_model::phpDockerfile} = $phpDockerfile;
-		$environment->{Environments_model::mysqlVersionId} = $mysqlVersionId;
-		$environment->{Environments_model::mysqlDockerfile} = $mysqlDockerfile;
-		$environment->{Environments_model::hasPma} = $hasPma;
-		$environment->{Environments_model::hasSftp} = $hasSftp;
-
-		// Get ports
-		$environment->{Environments_model::phpPort} = $this->getAvailablePort();
-		$environment->{Environments_model::phpSSLPort} = $this->getAvailablePort();
-		$environment->{Environments_model::mysqlPort} = $this->getAvailablePort();
-		$environment->{Environments_model::pmaPort} = $this->getAvailablePort();
-
-		// MySQL params
-		$environment->{Environments_model::mysqlUser} = $mySqlRootUser;
-		$environment->{Environments_model::mysqlPassword} = $mySqlPassword;
-
-		// Sftp params
-		$environment->{Environments_model::sftpUser} = $projectUniqId;
-		$environment->{Environments_model::sftpPassword} = $sftpPassword;
-		$environment->{Environments_model::sftpPort} = $sftpPort;
-
-		// Generate docker compose
-		$this->generateProjectDockerFolder($environment);
-
-		// Add environment
-		$environmentId = $this->Environments_model->insertEnvironment($environment);
-
-		if (isset($environmentId) && $environmentId != -1) {
-
-			// Start docker compose
-            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
-            $this->startEnvironment($dockerComposePath);
-
-			redirect('environments');
-
-		} else {
-			// todo manage error
-			exit('Error insert env !');
-		}
-
-		// Todo generate compose then run it
-		// Send mail admin
-		// redirect('environments');
-
 	}
 
     /**
