@@ -5,7 +5,7 @@
 <?php
 if (isset($environment) && !empty($environment)) {
     //echo json_encode($environment);
-    var_dump($environment);
+    //var_dump($environment);
 
 }
 ?>

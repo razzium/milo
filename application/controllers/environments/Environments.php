@@ -278,17 +278,39 @@ class Environments extends MI_Controller {
 
     }
 
-	public function deleteEnv($folderName = null)
+    public function deleteEnvAjax()
+    {
+
+        // Load models
+        $this->load->model('Environments_model');
+
+        $response = false;
+
+        if (isset($_GET['folder']) && !empty($_GET['folder'])) {
+
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+            $this->stopEnvironment($dockerComposePath);
+            $this->deleteEnvironment($dockerComposePath);
+
+            $this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
+
+            // Delete project folder
+            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; rm -rf ' . $_GET['folder'] . ';');
+
+            $response = true;
+
+        }
+
+        echo json_encode($response);
+    }
+
+	public function deleteEnv($folderName)
 	{
 
 		// Load models
 		$this->load->model('Environments_model');
 
 		$response = false;
-
-		if ((!isset($folderName) || empty($folderName)) && (isset($_GET['folder']) && !empty($_GET['folder']))) {
-            $folderName = $_GET['folder'];
-        }
 
 		if (isset($folderName) && !empty($folderName)) {
 
@@ -307,7 +329,6 @@ class Environments extends MI_Controller {
 
 		$this->cleanAllDockerEnv();// Todo careful
 
-		echo json_encode($response);
         return $response;
 	}
 
