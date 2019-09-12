@@ -368,7 +368,7 @@
         };
 
         $.ajax({
-            url: "<?php echo base_url('environments/environments/deleteEnv'); ?>",
+            url: "<?php echo base_url('environments/environments/deleteEnvAjax'); ?>",
             type: 'GET',
             data: form_data,
             dataType: 'json',

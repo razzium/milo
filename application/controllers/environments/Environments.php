@@ -112,7 +112,7 @@ class Environments extends MI_Controller {
         $environment->{Environments_model::hasPma} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
         $environment->{Environments_model::hasSftp} = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
 
-            // Get ports
+        // Get ports
         $environment->{Environments_model::phpPort} = (isset($_POST['phpPort']) && !empty($_POST['phpPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpPort'])*/ $_POST['phpPort'] : $this->getAvailablePort();// Todo
         $environment->{Environments_model::phpSSLPort} = (isset($_POST['phpSSLPort']) && !empty($_POST['phpSSLPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpSSLPort'])*/ $_POST['phpSSLPort'] : $this->getAvailablePort();// Todo
         $environment->{Environments_model::mysqlPort} = (isset($_POST['mysqlPort']) && !empty($_POST['mysqlPort'])) ? /*$this->TODOchekAvailablePort($_POST['mysqlPort'])*/ $_POST['mysqlPort'] : $this->getAvailablePort();// Todo
@@ -122,25 +122,25 @@ class Environments extends MI_Controller {
         $environment->{Environments_model::mysqlUser} = (isset($_POST['mysqlUser']) && !empty($_POST['mysqlUser'])) ? $_POST['mysqlUser'] : 'root';// Todo
         $environment->{Environments_model::mysqlPassword} = (isset($_POST['mysqlPassword']) && !empty($_POST['mysqlPassword'])) ? $_POST['mysqlPassword'] : randomPassword();// Todo
 
-        // Sftp params
-        $environment->{Environments_model::sftpUser} = $environment->{Environments_model::folder};
+        // Sftp param
+        $environment->{Environments_model::sftpUser} = (isset($_POST['sftpUser']) && !empty($_POST['sftpUser'])) ? $_POST['sftpUser'] : $environment->{Environments_model::folder};// Todo
         $environment->{Environments_model::sftpPassword} = (isset($_POST['sftpPassword']) && !empty($_POST['sftpPassword'])) ? $_POST['sftpPassword'] : randomPassword();// Todo
         $environment->{Environments_model::sftpPort} = (isset($_POST['sftpPort']) && !empty($_POST['sftpPort'])) ? /*$this->TODOchekAvailablePort($_POST['sftpPort'])*/ $_POST['sftpPort'] : $this->getAvailablePort();// Todo
 
         // 2. Manage action type update or add
         $isEditAction = false;
-        if (isset($_POST['envId']) && !empty($_POST['envId'])) {
+        //if (isset($_POST['envId']) && !empty($_POST['envId'])) {
+        if (isset($_POST['initialFolderName']) && !empty($_POST['initialFolderName'])) {
 
             $isEditAction = true;
+            //$envId = $_POST['envId'];
+            $initialFolderName = $_POST['initialFolderName'];
 
-            // Stop
-            // Backup all needed to be backuped
-            // Delete
-            // Create (normal process
-            // Copy backuped files
+            $isEnvDeleted = $this->deleteEnv($initialFolderName);
+            if (!$isEnvDeleted) {
 
-            exit ('UPDATE IN PROGRESS');
-
+                exit ('UPDATE : DELETE ERROR');
+            }
 
         }
 
@@ -278,7 +278,7 @@ class Environments extends MI_Controller {
 
     }
 
-	public function deleteEnv()
+	public function deleteEnv($folderName = null)
 	{
 
 		// Load models
@@ -286,22 +286,29 @@ class Environments extends MI_Controller {
 
 		$response = false;
 
-		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
+		if ((!isset($folderName) || empty($folderName)) && (isset($_GET['folder']) && !empty($_GET['folder']))) {
+            $folderName = $_GET['folder'];
+        }
 
-            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+		if (isset($folderName) && !empty($folderName)) {
+
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
             $this->stopEnvironment($dockerComposePath);
             $this->deleteEnvironment($dockerComposePath);
 
-            $this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
+            $this->Environments_model->deleteEnvironmentByFolder($folderName);
 
             // Delete project folder
-            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; rm -rf ' . $_GET['folder'] . ';');
+            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; rm -rf ' . $folderName . ';');
 
 			$response = true;
 
 		}
 
+		$this->cleanAllDockerEnv();// Todo careful
+
 		echo json_encode($response);
+        return $response;
 	}
 
 	// Todo : check by project attributes !!! (ex : if no sql, do not check sql !)

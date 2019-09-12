@@ -4,7 +4,9 @@
 <script src=<?php echo base_url() . "/assets/js/pace.min.js"?>></script>
 <?php
 if (isset($environment) && !empty($environment)) {
+    //echo json_encode($environment);
     var_dump($environment);
+
 }
 ?>
 <div class="container">
@@ -15,6 +17,18 @@ if (isset($environment) && !empty($environment)) {
 				<label >Options</label>
 				<div class="checkbox">
                     <input id="envId" name="envId" type="hidden" value="<?= isset($environment) && isset($environment->id) && !empty($environment->id) ? $environment->id : '' ?>">
+                    <input id="initialFolderName" name="initialFolderName" type="hidden" value="<?= isset($environment) && isset($environment->folder) && !empty($environment->folder) ? $environment->folder : '' ?>">
+                    <input id="phpPort" name="phpPort" type="hidden" value="<?= isset($environment) && isset($environment->php_port) && !empty($environment->php_port) ? $environment->php_port : '' ?>">
+                    <input id="phpSSLPort" name="phpSSLPort" type="hidden" value="<?= isset($environment) && isset($environment->php_ssl_port) && !empty($environment->php_ssl_port) ? $environment->php_ssl_port : '' ?>">
+                    <input id="mysqlPort" name="mysqlPort" type="hidden" value="<?= isset($environment) && isset($environment->mysql_port) && !empty($environment->mysql_port) ? $environment->mysql_port : '' ?>">
+                    <input id="pmaPort" name="pmaPort" type="hidden" value="<?= isset($environment) && isset($environment->pma_port) && !empty($environment->pma_port) ? $environment->pma_port : '' ?>">
+                    <input id="sftpPort" name="sftpPort" type="hidden" value="<?= isset($environment) && isset($environment->sftp_port) && !empty($environment->sftp_port) ? $environment->sftp_port : '' ?>">
+
+                    <input id="sftpUser" name="sftpUser" type="hidden" value="<?= isset($environment) && isset($environment->sftp_user) && !empty($environment->sftp_user) ? $environment->sftp_user : '' ?>">
+                    <input id="sftpPassword" name="sftpPassword" type="hidden" value="<?= isset($environment) && isset($environment->sftp_password) && !empty($environment->sftp_password) ? $environment->sftp_password : '' ?>">
+                    <input id="mysqlUser" name="mysqlUser" type="hidden" value="<?= isset($environment) && isset($environment->mysql_user) && !empty($environment->mysql_user) ? $environment->mysql_user : '' ?>">
+                    <input id="mysqlPassword" name="mysqlPassword" type="hidden" value="<?= isset($environment) && isset($environment->mysql_password) && !empty($environment->mysql_password) ? $environment->mysql_password : '' ?>">
+
 					<label><input id="webserverTrigger" name="webserverTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->webserver) && !empty($environment->webserver) ? 'checked' : '' ?>>Webserver</label>
 					<label><input id="phpTrigger" name="phpTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->php_version_id) && !empty($environment->php_version_id) ? 'checked' : '' ?>>Php</label>
 					<label><input id="mysqlTrigger" name="mysqlTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->mysql_version_id) && !empty($environment->mysql_version_id) ? 'checked' : '' ?>>MySQL / MariaDB</label>
