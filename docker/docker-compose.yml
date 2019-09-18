@@ -14,6 +14,21 @@ services:
     working_dir: $PWD
     tty: true
 
+# Docker in docker -> todo PORTS mapping
+# cmd ex : sudo docker exec docker-dind-milo bash -c 'cd envs;cd deploy_preprod_1;docker-compose up -d'
+#  docker-dind-milo:
+#    restart: always
+#    image: razzium/dind
+#    container_name: docker-dind-milo
+#    privileged: true
+#    volumes:
+#      - ${PWD}:/${PWD}
+#    ports:
+#      - ??:80
+#      - ??:3306
+#    working_dir: $PWD
+#    tty: true
+
   mariadb-milo:
     image: "mariadb"
     container_name: mariadb-milo
