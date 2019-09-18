@@ -2,13 +2,9 @@
   php-{project}:
     restart: always
     build: image/php
-    depends_on:
-      - mysql-{project}
     ports:
       - {port}:80
       - {port-ssl}:443
-    links:
-      - mysql-{project}:db-server
     volumes:
       - "./src:/var/www/html"
       - "./logs/apache:/var/log/apache2"

@@ -10,4 +10,4 @@
       - mysql-{project}:db-server
     volumes:
       - "./src:/var/www/html"
-      #- "./src/php/logs:/var/log/apache2"
+      - "./logs/apache:/var/log/apache2"

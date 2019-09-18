@@ -18,7 +18,7 @@ if (isset($environment) && !empty($environment)) {
 				<label >Options</label>
 				<div class="checkbox">
                     <input id="envId" name="envId" type="hidden" value="<?= isset($environment) && isset($environment->id) && !empty($environment->id) ? $environment->id : '' ?>" <?= $isEdit ? 'readonly' : '' ?>>
-                    <input id="initialFolderName" name="initialFolderName" type="hidden" value="<?= isset($environment) && isset($environment->folder) && !empty($environment->folder) ? $environment->folder : '' ?>">
+                    <!--<input id="initialFolderName" name="initialFolderName" type="hidden" value="<?/*= isset($environment) && isset($environment->folder) && !empty($environment->folder) ? $environment->folder : '' */?>">-->
                     <input id="phpPort" name="phpPort" type="hidden" value="<?= isset($environment) && isset($environment->php_port) && !empty($environment->php_port) ? $environment->php_port : '' ?>">
                     <input id="phpSSLPort" name="phpSSLPort" type="hidden" value="<?= isset($environment) && isset($environment->php_ssl_port) && !empty($environment->php_ssl_port) ? $environment->php_ssl_port : '' ?>">
                     <input id="mysqlPort" name="mysqlPort" type="hidden" value="<?= isset($environment) && isset($environment->mysql_port) && !empty($environment->mysql_port) ? $environment->mysql_port : '' ?>">
@@ -34,7 +34,7 @@ if (isset($environment) && !empty($environment)) {
 					<label><input id="phpTrigger" name="phpTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->php_version_id) && !empty($environment->php_version_id) ? 'checked' : '' ?>>Php</label>
 					<label><input id="mysqlTrigger" name="mysqlTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->mysql_version_id) && !empty($environment->mysql_version_id) ? 'checked' : '' ?>>MySQL / MariaDB</label>
 					<label><input id="sftp" name="sftp" type="checkbox" value="true" <?= isset($environment) && isset($environment->has_sftp) && !empty($environment->has_sftp) ? 'checked' : '' ?>>SFTP</label>
-					<label><input id="pma" name="pma" type="checkbox" value="true" <?= isset($environment) && isset($environment->has_pma) && !empty($environment->has_pma) ? 'checked' : '' ?>>phpMyAdmin</label>
+					<label id="pmaLabel"><input id="pma" name="pma" type="checkbox" value="true" <?= isset($environment) && isset($environment->has_pma) && !empty($environment->has_pma) ? 'checked' : '' ?>>phpMyAdmin</label>
 <!--					<label><input id="redis" name="redis" type="checkbox" value="true">Redis</label>-->
 				</div>
 			</div>
@@ -56,7 +56,7 @@ if (isset($environment) && !empty($environment)) {
 			<div id="phpDiv" class="form-group">
 				<label for="phpVersion">Php version</label>
 				<select class="form-control" id="phpVersion" name="phpVersion" required <?= $isEdit ? 'disabled' : '' ?>>
-					<option>--</option>
+					<!--<option>--</option>-->
 					<!--<option value="custom">Custom (with Dockerfile)</option>-->
 					<?php
 					if (isset($phpVersions) && !empty($phpVersions)) {
@@ -90,7 +90,7 @@ if (isset($environment) && !empty($environment)) {
 			<div id="mysqlDiv" class="form-group">
 				<label for="mysqlVersion">MySQL / MariaDB version</label>
 				<select class="form-control" id="mysqlVersion" name="mysqlVersion" required <?= $isEdit ? 'disabled' : '' ?>>
-					<option>--</option>
+					<!--<option>--</option>-->
 					<!--<option value="custom">Custom (with Dockerfile)</option>-->
 					<?php
                     if (isset($mysqlVersions) && !empty($mysqlVersions)) {
@@ -200,6 +200,7 @@ if (isset($environment) && !empty($environment)) {
             }
             else {
 
+                $( "#pmaLabel" ).hide();
                 $( "#webserverDiv" ).hide();
                 $( "#phpDiv" ).hide();
                 $( "#mysqlDiv" ).hide();
@@ -240,6 +241,7 @@ if (isset($environment) && !empty($environment)) {
 
 			if ($('#mysqlTrigger').is(':checked')) {
 				$( "#mysqlDiv" ).show();
+                $( "#pmaLabel" ).show();
 
 				if ($('#mysqlVersion').val().includes("custom") ) {
 					$( "#mysqlDockerfileDiv" ).show();
@@ -250,6 +252,7 @@ if (isset($environment) && !empty($environment)) {
 			} else {
 				$( "#mysqlDiv" ).hide();
 				$( "#mysqlDockerfileDiv" ).hide();
+                $( "#pmaLabel" ).hide();
 			}
 
 		});

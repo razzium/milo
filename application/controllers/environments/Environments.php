@@ -33,24 +33,35 @@ class Environments extends MI_Controller {
                         $environment->has_php = "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>";
                     } else {
                         $environment->has_php = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::phpVersionId} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::phpPort} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::phpSSLPort} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
                     }
 
                     if (isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId})) {
                         $environment->has_mysql = "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>";
                     } else {
                         $environment->has_mysql = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::mysqlVersionId} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::mysqlUser} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::mysqlPassword} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::mysqlPort} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
                     }
 
                     if ($environment->{Environments_model::hasPma}) {
                         $environment->{Environments_model::hasPma} = "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>";
                     } else {
                         $environment->{Environments_model::hasPma} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::pmaPort} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
                     }
 
                     if ($environment->{Environments_model::hasSftp}) {
                         $environment->{Environments_model::hasSftp} = "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>";
                     } else {
                         $environment->{Environments_model::hasSftp} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::sftpUser} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::sftpPassword} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::sftpPort} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
                     }
                 }
 
@@ -82,6 +93,15 @@ class Environments extends MI_Controller {
         // - add : define params : ports, id, dockerfile, passwords (+ check & error message -> ex : ports)
         // - edit (warning : volumes erased and add copy source if first delete then reconstruct => check commented "formEnvironment" method)
 
+        if (
+            //(!isset($_POST['webserverTrigger']) || empty($_POST['webserverTrigger'])) && // Todo : when webserver not embedded in php
+            (!isset($_POST['phpTrigger']) || empty($_POST['phpTrigger'])) &&
+            (!isset($_POST['mysqlTrigger']) || empty($_POST['mysqlTrigger'])) &&
+            (!isset($_POST['sftp']) || empty($_POST['sftp']))
+        ) {
+            // Todo : proper error (display error flash ?!)
+            exit ('no options choosen');
+        }
 
 
         // Todo more params setable
@@ -125,54 +145,68 @@ class Environments extends MI_Controller {
         // Set name
         $environment->{Environments_model::name} = (isset($_POST['name']) && !empty($_POST['name'])) ? trim($_POST['name']) : $phpUniqueId;
         // Set webserver
+        // Todo : $_POST['webserverTrigger']
         $environment->{Environments_model::webserver} = (isset($_POST['webserver']) && !empty($_POST['webserver'])) ? mb_strtolower($_POST['webserver']) : null ;
 
         // Set php
-        $environment->{Environments_model::phpVersionId} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
-        $environment->{Environments_model::phpDockerfile} = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
+        $environment->{Environments_model::phpVersionId} = (isset($_POST['phpTrigger']) && !empty($_POST['phpTrigger']) && isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
+        if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId})) {
+            $environment->{Environments_model::phpPort} = (isset($_POST['phpPort']) && !empty($_POST['phpPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpPort'])*/ $_POST['phpPort'] : $this->getAvailablePort();// Todo
+            $environment->{Environments_model::phpSSLPort} = (isset($_POST['phpSSLPort']) && !empty($_POST['phpSSLPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpSSLPort'])*/ $_POST['phpSSLPort'] : $this->getAvailablePort();// Todo
+            // Todo : $environment->{Environments_model::phpDockerfile} = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
+        }
 
         // Set mysql
-        $environment->{Environments_model::mysqlVersionId} = (isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
-        $environment->{Environments_model::mysqlDockerfile} = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
-        $environment->{Environments_model::mysqlUser} = (isset($_POST['mysqlUser']) && !empty($_POST['mysqlUser'])) ? $_POST['mysqlUser'] : 'root';// Todo
-        $environment->{Environments_model::mysqlPassword} = (isset($_POST['mysqlPassword']) && !empty($_POST['mysqlPassword'])) ? $_POST['mysqlPassword'] : randomPassword();// Todo
+        $environment->{Environments_model::mysqlVersionId} = (isset($_POST['mysqlTrigger']) && !empty($_POST['mysqlTrigger']) && isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
+        if (isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId})) {
+            $environment->{Environments_model::mysqlUser} = (isset($_POST['mysqlUser']) && !empty($_POST['mysqlUser'])) ? $_POST['mysqlUser'] : 'root';// Todo
+            $environment->{Environments_model::mysqlPassword} = (isset($_POST['mysqlPassword']) && !empty($_POST['mysqlPassword'])) ? $_POST['mysqlPassword'] : randomPassword();// Todo
+            $environment->{Environments_model::mysqlPort} = (isset($_POST['mysqlPort']) && !empty($_POST['mysqlPort'])) ? /*$this->TODOchekAvailablePort($_POST['mysqlPort'])*/ $_POST['mysqlPort'] : $this->getAvailablePort();// Todo
+            // Todo : $environment->{Environments_model::mysqlDockerfile} = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
+        }
 
         // Set phpmyadmin
-        $environment->{Environments_model::hasPma} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
+        $environment->{Environments_model::hasPma} = (isset($_POST['mysqlTrigger']) && !empty($_POST['mysqlTrigger']) && isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
+        if (isset($environment->{Environments_model::hasPma}) && !empty($environment->{Environments_model::hasPma})) {
+            $environment->{Environments_model::pmaPort} = (isset($_POST['pmaPort']) && !empty($_POST['pmaPort'])) ? /*$this->TODOchekAvailablePort($_POST['pmaPort'])*/ $_POST['pmaPort'] : $this->getAvailablePort();// Todo
+        }
 
         // Set sftp
         $environment->{Environments_model::hasSftp} = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
-        $environment->{Environments_model::sftpUser} = (isset($_POST['sftpUser']) && !empty($_POST['sftpUser'])) ? $_POST['sftpUser'] : $environment->{Environments_model::folder};// Todo
-        $environment->{Environments_model::sftpPassword} = (isset($_POST['sftpPassword']) && !empty($_POST['sftpPassword'])) ? $_POST['sftpPassword'] : randomPassword();// Todo
-        $environment->{Environments_model::sftpPort} = (isset($_POST['sftpPort']) && !empty($_POST['sftpPort'])) ? /*$this->TODOchekAvailablePort($_POST['sftpPort'])*/ $_POST['sftpPort'] : $this->getAvailablePort();// Todo
+        if (isset($environment->{Environments_model::hasSftp}) && !empty($environment->{Environments_model::hasSftp})) {
+            //$environment->{Environments_model::sftpUser} = (isset($_POST['sftpUser']) && !empty($_POST['sftpUser'])) ? $_POST['sftpUser'] : $environment->{Environments_model::folder};// Todo
+            $environment->{Environments_model::sftpUser} = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+            $environment->{Environments_model::sftpPassword} = (isset($_POST['sftpPassword']) && !empty($_POST['sftpPassword'])) ? $_POST['sftpPassword'] : randomPassword();// Todo
+            $environment->{Environments_model::sftpPort} = (isset($_POST['sftpPort']) && !empty($_POST['sftpPort'])) ? /*$this->TODOchekAvailablePort($_POST['sftpPort'])*/ $_POST['sftpPort'] : $this->getAvailablePort();// Todo
+        }
 
-        // 5. Get ports
-        $environment->{Environments_model::phpPort} = (isset($_POST['phpPort']) && !empty($_POST['phpPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpPort'])*/ $_POST['phpPort'] : $this->getAvailablePort();// Todo
-        $environment->{Environments_model::phpSSLPort} = (isset($_POST['phpSSLPort']) && !empty($_POST['phpSSLPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpSSLPort'])*/ $_POST['phpSSLPort'] : $this->getAvailablePort();// Todo
-        $environment->{Environments_model::mysqlPort} = (isset($_POST['mysqlPort']) && !empty($_POST['mysqlPort'])) ? /*$this->TODOchekAvailablePort($_POST['mysqlPort'])*/ $_POST['mysqlPort'] : $this->getAvailablePort();// Todo
-        $environment->{Environments_model::pmaPort} = (isset($_POST['pmaPort']) && !empty($_POST['pmaPort'])) ? /*$this->TODOchekAvailablePort($_POST['pmaPort'])*/ $_POST['pmaPort'] : $this->getAvailablePort();// Todo
 
-        // 6. Generate docker compose
-        $this->generateProjectDockerFolder($environment);
+        // 5. Generate docker compose
+        $isProjectDockerFolderCreated = $this->generateProjectDockerFolder($environment);
 
-        // 7. Add environment
-        $environmentId = $this->Environments_model->insertEnvironment($environment);
+        // 6. Add environment
+        if ($isProjectDockerFolderCreated) {
+            $environmentId = $this->Environments_model->insertEnvironment($environment);
+            if (isset($environmentId) && $environmentId != -1) {
 
-        if (isset($environmentId) && $environmentId != -1) {
+                // 7. Start docker compose
 
-            // 8. Start docker compose
+                $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+                $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
+                $this->startEnvironment($dockerComposePath);
 
-            $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
-            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
-            $this->startEnvironment($dockerComposePath);
+                // Todo send admin mail ?!
+                redirect('environments');
 
-            // Todo send admin mail ?!
-            redirect('environments');
-
+            } else {
+                // Todo : proper error (display error flash ?!)
+                exit('Error insert env add || update !');
+            }
         } else {
             // Todo : proper error (display error flash ?!)
-            exit('Error insert env add || update !');
+            exit('Error docker compose file !');
         }
+
 
     }
 
@@ -739,23 +773,27 @@ class Environments extends MI_Controller {
         $data = array();
         $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
-        // Add SFTP
-        $filePath = "templates/docker/compose/docker-compose-sftp.yml";
-        // Todo : check
+        // Add SFTP (if needed)
+        // Todo : different check & disable ?!
         /*		if ($data[$environment->{Environments_model::hasSftp}]) {
                     $filePath = "templates/docker/compose/docker-compose-sftp.yml";
                 } else {
                     $filePath = "templates/docker/compose/docker-compose-sftp-disabled.yml";
                 }*/
+        if (isset($environment->{Environments_model::hasSftp}) && !empty($environment->{Environments_model::hasSftp})) {
+            $filePath = "templates/docker/compose/docker-compose-sftp.yml";
 
-        $data = array();
-        $data['user'] = $environment->{Environments_model::folder};
-        $data['pass'] = $environment->{Environments_model::sftpPassword};
-        $data['port'] = $environment->{Environments_model::sftpPort};
-        $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
+
+            $data = array();
+            $data['project'] = $environment->{Environments_model::folder};
+            $data['user'] = $environment->{Environments_model::sftpUser};
+            $data['pass'] = $environment->{Environments_model::sftpPassword};
+            $data['port'] = $environment->{Environments_model::sftpPort};
+            $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
+        }
 
         // Services
-        // MySQL
+        // Add MySQL (if needed)
         if (isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId}) && $environment->{Environments_model::mysqlVersionId} != "--") {
 
             if ($environment->{Environments_model::mysqlVersionId} != "custom") {
@@ -780,7 +818,7 @@ class Environments extends MI_Controller {
             // Todo if dockerfile builds
         }
 
-        // php todo Apache / Nginx
+        // Add PHP (if needed)
         if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} != "--") {
             if ($environment->{Environments_model::phpVersionId} != "custom") {
 
@@ -799,7 +837,13 @@ class Environments extends MI_Controller {
                 // Todo : Logs php, mysql
 
                 #$filePath = "templates/docker/compose/docker-compose-php-image.yml";
-                $filePath = "templates/docker/compose/docker-compose-php-build.yml";
+
+                // Check if env has MySQL (to link php or not)
+                if (isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId}) && $environment->{Environments_model::mysqlVersionId} != "--") {
+                    $filePath = "templates/docker/compose/docker-compose-php-build.yml";
+                } else {
+                    $filePath = "templates/docker/compose/docker-compose-php-build-without-db.yml";
+                }
                 $data['localPath'] = $localPath;
                 $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
@@ -845,65 +889,67 @@ class Environments extends MI_Controller {
                     // Todo if dockerfile builds
                 }*/
 
-        // PMA
-        if (isset($environment->{Environments_model::hasPma}) && !empty($environment->{Environments_model::hasPma})) {
+        // Add PMA (if needed)
+        if (isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId}) && $environment->{Environments_model::mysqlVersionId} != "--" && isset($environment->{Environments_model::hasPma}) && !empty($environment->{Environments_model::hasPma})) {
             $filePath = "templates/docker/compose/docker-compose-pma.yml";
             $data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::pmaPort});
             $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
         }
 
         // Volumes
-        // MySQL
+        // Add MySQL volumes (if needed)
         if ((isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId})) || (isset($environment->{Environments_model::mysqlDockerfile}) && !empty($environment->{Environments_model::mysqlDockerfile}))) {
             $filePath = "templates/docker/compose/docker-compose-mysql-volume.yml";
             $data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::pmaPort});
             $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
         }
 
+        // Set final docker compose
         $environment->{Environments_model::dockerCompose} = $dockerCompose;
 
-        if (!isset($environment->{Environments_model::phpPort}) || empty($environment->{Environments_model::phpPort}) || $environment->{Environments_model::phpPort} == -1) {
-            // Todo error
-        }
+        if (isset($environment->{Environments_model::dockerCompose}) && !empty($environment->{Environments_model::dockerCompose})) {
 
-        if (!isset($environment->{Environments_model::mysqlPort}) || empty($environment->{Environments_model::mysqlPort}) || $environment->{Environments_model::mysqlPort} == -1) {
-            // Todo error
-        }
+            // Folder name
+            $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
 
-        if (!isset($environment->{Environments_model::pmaPort}) || empty($environment->{Environments_model::pmaPort}) || $environment->{Environments_model::pmaPort} == -1) {
-            // Todo error
-        }
+            // Create folder
+            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $folderName . '; chmod 777 -R ' . $folderName . '; cd ' . $folderName . '; mkdir src;');
+            // OR add mkdir apache ?! shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $folderName . '; chmod 777 -R ' . $folderName . '; cd ' . $folderName . '; mkdir src; mkdir apache;');
 
-        // Folder name
-        $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
-        // Todo : manage dynamic, if user don't select php don't do that
-        $filename = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/src/index.php";
-        if (!file_exists($filename)){
+            // Set php image (if needed)
+            if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} != "--") {
 
-            // Create project folder
-            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $folderName . '; chmod 777 -R ' . $folderName . '; cd ' . $folderName . '; mkdir src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php ; chmod 777 index.php');
+                $filename = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/src/index.php";
+                if (!file_exists($filename)){
 
-        }
+                    // Create project folder
+                    shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName . '; cd src; echo "<?php echo phpinfo(); ?>" >> index.php ; chmod 777 index.php');
 
-        // Create php folder (dockerfile)
-        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName. '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+                }
 
-        if (isset($environment) && !empty($environment)) {
+                // Create php folder (dockerfile)
+                shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName. '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+
+
+                // Todo php dockerfile
+                $dockerfilePhpPath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/image/php/";
+                file_put_contents($dockerfilePhpPath . "Dockerfile", $environment->{Environments_model::phpDockerfile});
+
+            }
 
             $dockerComposePath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/";
             file_put_contents($dockerComposePath . "docker-compose.yml", $environment->{Environments_model::dockerCompose});
 
-            // Todo php dockerfile
-            $dockerfilePhpPath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/image/php/";
-            file_put_contents($dockerfilePhpPath . "Dockerfile", $environment->{Environments_model::phpDockerfile});
+            // CHMOD -R 777 folder
+            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod 777 -R ' . $folderName . ';');
+            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod -R 777 ' . $folderName . ';');
+
+            return true;
 
         } else {
             // Todo error
+            return false;
         }
-
-        // CHMOD -R 777 folder
-        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod 777 -R ' . $folderName . ';');
-        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod -R 777 ' . $folderName . ';');
 
     }
 
