@@ -5,9 +5,7 @@ services:
   # Docker compose way
   docker-dood-milo:
     restart: always
-    #image: teracy/ubuntu:16.04-dind-17.06.0-ce
     image: razzium/dind
-    #build: image/dood
     container_name: docker-dood-milo
     privileged: true
     volumes:
