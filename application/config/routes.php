@@ -56,12 +56,10 @@ $route['environments'] = 'environments/environments';
 
 // Controllers
 $route['form-environment'] = 'environments/environments/formEnvironment';
-
-
+$route['form-import-environment'] = 'environments/environments/formImportEnvironment';
 
 $route['add-environment'] = 'environments/environments/addEnvironment';
 $route['edit-environment'] = 'environments/environments/editEnvironment';
-$route['display-import-environment'] = 'environments/environments/displayImportEnvironment';
 $route['import-environment'] = 'environments/environments/importEnvironment';
 
 // Todo

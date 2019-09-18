@@ -4,19 +4,20 @@
 <script src=<?php echo base_url() . "/assets/js/pace.min.js"?>></script>
 <?php
 if (isset($environment) && !empty($environment)) {
-    //echo json_encode($environment);
-    //var_dump($environment);
+    $isEdit = true;
 
+} else {
+    $isEdit = false;
 }
 ?>
 <div class="container">
 	<div class="row">
 		<form method="post" accept-charset="utf-8" action="<?= base_url(); ?>form-environment" role="form" class="col-md-9 go-right">
-			<h2>Add environment</h2>
+			<h2><?= $isEdit ? 'Edit environment (NOT IMPLEMENTED YET -> VIEW ONLY)' : 'Add environment' ?></h2>
 			<div class="form-group">
 				<label >Options</label>
 				<div class="checkbox">
-                    <input id="envId" name="envId" type="hidden" value="<?= isset($environment) && isset($environment->id) && !empty($environment->id) ? $environment->id : '' ?>">
+                    <input id="envId" name="envId" type="hidden" value="<?= isset($environment) && isset($environment->id) && !empty($environment->id) ? $environment->id : '' ?>" <?= $isEdit ? 'readonly' : '' ?>>
                     <input id="initialFolderName" name="initialFolderName" type="hidden" value="<?= isset($environment) && isset($environment->folder) && !empty($environment->folder) ? $environment->folder : '' ?>">
                     <input id="phpPort" name="phpPort" type="hidden" value="<?= isset($environment) && isset($environment->php_port) && !empty($environment->php_port) ? $environment->php_port : '' ?>">
                     <input id="phpSSLPort" name="phpSSLPort" type="hidden" value="<?= isset($environment) && isset($environment->php_ssl_port) && !empty($environment->php_ssl_port) ? $environment->php_ssl_port : '' ?>">
@@ -37,24 +38,24 @@ if (isset($environment) && !empty($environment)) {
 <!--					<label><input id="redis" name="redis" type="checkbox" value="true">Redis</label>-->
 				</div>
 			</div>
-            <div class="form-group">
+<!--            <div class="form-group">
                 <label for="name">Custom id</label>
-                <input id="name" name="customId" type="text" value="<?= isset($environment) && isset($environment->folder) && !empty($environment->folder) ? $environment->folder : '' ?>" class="form-control" >
-            </div>
+                <input id="name" name="customId" type="text" value="<?/*= isset($environment) && isset($environment->folder) && !empty($environment->folder) ? $environment->folder : '' */?>" class="form-control" <?/*= $isEdit ? 'readonly' : '' */?>>
+            </div>-->
 			<div class="form-group">
 				<label for="name">Name</label>
-				<input id="name" name="name" type="text" value="<?= isset($environment) && isset($environment->name) && !empty($environment->name) ? $environment->name : '' ?>" class="form-control" required>
+				<input id="name" name="name" type="text" value="<?= isset($environment) && isset($environment->name) && !empty($environment->name) ? $environment->name : '' ?>" class="form-control" required <?= $isEdit ? 'readonly' : '' ?>>
 			</div>
 			<div id="webserverDiv" class="form-group">
 				<label for="webserver">Webserver</label>
-				<select class="form-control" id="webserver" name="webserver" required>
+				<select class="form-control" id="webserver" name="webserver" required <?= $isEdit ? 'disabled' : '' ?>>
 					<option value="apache">Apache</option>
 					<!--<option value="nginx">NGINX</option>-->Todo
 				</select>
 			</div>
 			<div id="phpDiv" class="form-group">
 				<label for="phpVersion">Php version</label>
-				<select class="form-control" id="phpVersion" name="phpVersion" required>
+				<select class="form-control" id="phpVersion" name="phpVersion" required <?= $isEdit ? 'disabled' : '' ?>>
 					<option>--</option>
 					<!--<option value="custom">Custom (with Dockerfile)</option>-->
 					<?php
@@ -88,7 +89,7 @@ if (isset($environment) && !empty($environment)) {
 			</div>
 			<div id="mysqlDiv" class="form-group">
 				<label for="mysqlVersion">MySQL / MariaDB version</label>
-				<select class="form-control" id="mysqlVersion" name="mysqlVersion" required>
+				<select class="form-control" id="mysqlVersion" name="mysqlVersion" required <?= $isEdit ? 'disabled' : '' ?>>
 					<option>--</option>
 					<!--<option value="custom">Custom (with Dockerfile)</option>-->
 					<?php
@@ -120,7 +121,19 @@ if (isset($environment) && !empty($environment)) {
                      ?>
                 </textarea>
 			</div>
-			<button type="submit" onclick="launchLoader()" id="form-submit" class="btn btn-primary btn-lg pull-right "><?= isset($environment) && !empty($environment) ? 'Edit' : 'Add' ?></button>
+            <!--<button type="submit" onclick="launchLoader()" id="form-submit" class="btn btn-primary btn-lg pull-right "><?/*= isset($environment) && !empty($environment) ? 'Edit' : 'Add' */?></button>-->
+            <?php
+            if ($isEdit) {
+                ?>
+                <button type="button" onclick="window.history.go(-1)" class="btn btn-danger btn-lg pull-right ">Back</button>
+                <?php
+            }
+            else {
+                ?>
+                <button type="submit" onclick="launchLoader()" id="form-submit" class="btn btn-primary btn-lg pull-right ">Add</button>
+                <?php
+            }
+            ?>
 		</form>
 	</div>
 </div>

@@ -25,45 +25,61 @@
 
         <?php } ?>
     </div>
+
     <div class="row">
 
         <div class="col-md-12">
 
-            <table id="table_data" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
-                <thead>
-                <tr>
-                    <th>Status</th>
-                    <th>Name</th>
-                    <th>Webserver</th>
-                    <th>Php</th>
-                    <th>MySQL / MariaDB</th>
-                    <th>phpMyAdmin</th>
-                    <th>STFP</th>
-                    <th>Creator</th>
-                    <th>Creation date</th>
-                    <!--<th>Folder</th>-->
-                    <th>Php version</th>
-                    <th>Php port</th>
-                    <th>Php SSL port</th>
-                    <th>MySQL / MariaDB version</th>
-                    <th>MySQL / MariaDB root user</th>
-                    <th>MySQL / MariaDB root password</th>
-                    <th>MySQL / MariaDB  port</th>
-                    <th>phpMyAdmin port</th>
-                    <th>STFP user</th>
-                    <th>STFP pass</th>
-                    <th>STFP port</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
+            <?php
+            if (isset($jsonEnvironments) && !empty($jsonEnvironments)) {
+                ?>
+                <table id="table_data" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Name</th>
+                        <th>Webserver</th>
+                        <th>Php</th>
+                        <th>MySQL / MariaDB</th>
+                        <th>phpMyAdmin</th>
+                        <th>STFP</th>
+                        <th>Creator</th>
+                        <th>Creation date</th>
+                        <!--<th>Folder</th>-->
+                        <th>Php version</th>
+                        <th>Php port</th>
+                        <th>Php SSL port</th>
+                        <th>MySQL / MariaDB version</th>
+                        <th>MySQL / MariaDB root user</th>
+                        <th>MySQL / MariaDB root password</th>
+                        <th>MySQL / MariaDB  port</th>
+                        <th>phpMyAdmin port</th>
+                        <th>STFP user</th>
+                        <th>STFP pass</th>
+                        <th>STFP port</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
 
-            </table>
+                </table>
+                <?php
+            } else {
+                ?>
+                <h3>
+                    No environments
+                </h3>
+                <br/>
+                <?php
+            }
+            ?>
+
+
 
         </div>
     </div>
 
     <a class="btn btn-success" href="<?= base_url() . 'add-environment' ?>" role="button">Add environment</a>
-    <a class="btn btn-warning" href="<?= base_url() . 'display-import-environment' ?>" role="button">Import environment</a>
+    <a class="btn btn-warning" href="<?= base_url() . 'form-import-environment' ?>" role="button">Import environment</a>
     <button class="btn btn-info" type="button" onclick="getStatus()" >Refresh status &nbsp<span class="glyphicon glyphicon-refresh"></span></button>
     <!--Todo : Think about it (many buttons -> container, volumes, builds, etc ?! in a menu ?!)-->
     <!--<button class="btn btn-danger" type="button" onclick="cleanAllDockerEnv()" >CLEAN ALL DOCKER ENV (HOST) &nbsp<span class="glyphicon glyphicon-refresh"></span></button>-->

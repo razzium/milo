@@ -12,7 +12,7 @@
 				<input id="name" name="name" type="text" class="form-control" required>
 			</div>
 			<divclass="form-group">
-				<label for="comment">Dockerfile MySQL / MariaDB</label>
+				<label for="comment">JSON</label>
 				<textarea class="form-control" rows="5" id="envJson" name="envJson"></textarea>
 			</div>
 			<button type="submit" onclick="launchLoader()" id="form-submit" class="btn btn-primary btn-lg pull-right ">Add</button>
