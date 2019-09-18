@@ -781,8 +781,12 @@ class Environments extends MI_Controller {
                     $flePath = "templates/docker/compose/docker-compose-sftp-disabled.yml";
                 }*/
         if (isset($environment->{Environments_model::hasSftp}) && !empty($environment->{Environments_model::hasSftp})) {
-            $filePath = "templates/docker/compose/docker-compose-sftp.yml";
 
+            if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} != "--") {
+                $filePath = "templates/docker/compose/docker-compose-sftp.yml";
+            } else {
+                $filePath = "templates/docker/compose/docker-compose-sftp-no-source-no-logs.yml";
+            }
 
             $data = array();
             $data['project'] = $environment->{Environments_model::folder};
@@ -913,7 +917,7 @@ class Environments extends MI_Controller {
             $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
 
             // Create folder
-            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $folderName . '; chmod 777 -R ' . $folderName . '; cd ' . $folderName . '; mkdir src;');
+            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $folderName . '; chmod 777 -R ' . $folderName . '; cd ' . $folderName . '; ');
             // OR add mkdir apache ?! shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $folderName . '; chmod 777 -R ' . $folderName . '; cd ' . $folderName . '; mkdir src; mkdir apache;');
 
             // Set php image (if needed)
@@ -923,7 +927,7 @@ class Environments extends MI_Controller {
                 if (!file_exists($filename)){
 
                     // Create project folder
-                    shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName . '; cd src; echo "<?php echo phpinfo(); ?>" >> index.php ; chmod 777 index.php');
+                    shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName . '; mkdir src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php ; chmod 777 index.php');
 
                 }
 

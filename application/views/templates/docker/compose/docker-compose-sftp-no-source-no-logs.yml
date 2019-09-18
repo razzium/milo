@@ -1,0 +1,7 @@
+
+  sftp-{project}:
+    image: atmoz/sftp
+    restart: always
+    ports:
+        - "{port}:22"
+    command: {user}:{pass}:::www
