@@ -240,4 +240,9 @@ class Environments_model extends CI_Model {
         $this->db->delete(self::table, array(self::folder => $folder));
     }
 
+    public function deleteEnvironmentByName($name) {
+
+        $this->db->delete(self::table, array(self::name => $name));
+    }
+
 }

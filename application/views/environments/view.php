@@ -210,8 +210,8 @@
                 "data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
                 "data": function (data) {
                     return '<button onclick="startEnv(\'' + data.folder + '\')" class="btn btn-success" type="button"> Start </button> &nbsp; '	 +
-                        '<button onclick="stopEnv(\'' + data.folder + '\')" class="btn btn-info" type="button"> Stop </button> &nbsp; ' +
-                        '<button onclick="deleteEnv(\'' + data.folder + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; ' +
+                        '<button onclick="stopEnv(\'' + data.name + '\')" class="btn btn-info" type="button"> Stop </button> &nbsp; ' +
+                        '<button onclick="deleteEnv(\'' + data.name + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; ' +
                         '<button onclick="editEnv(\'' + data.folder + '\')" class="btn btn-primary" type="button"> Edit </button> &nbsp; ' +
                         '<button onclick="exportEnv(\'' + data.folder + '\')" class="btn btn-warning" type="button"> Export </button> &nbsp; '
                     /*						return '<button class="btn btn-success" type="button"> View </button> &nbsp; ' +
@@ -304,12 +304,12 @@
         });
     }
 
-    function stopEnv (folder) {
+    function stopEnv (name) {
 
         Pace.restart();
 
         var form_data = {
-            folder : folder
+            name : name
         };
 
         $.ajax({
@@ -359,12 +359,12 @@
 
     }
 
-    function deleteEnv (folder) {
+    function deleteEnv (name) {
 
         Pace.restart();
 
         var form_data = {
-            folder : folder
+            name : name
         };
 
         $.ajax({

@@ -74,6 +74,7 @@ class Environments extends MI_Controller {
 	/*
 	 * Form submission methods START
 	 */
+    // Different way : update all env + delete and reconstruct on Edit (WARNING : volumes fail -> mariadb !!!)
     public function formEnvironment()
     {
 
@@ -84,83 +85,82 @@ class Environments extends MI_Controller {
         // Todo : Warning session problem (db empty & exemple : no logout)
         // Todo : Warning ion_auth_users_groups delete cascade (+check all)
 
-        // Load models
-        $this->load->model('Environments_model');
-        $this->load->model('Mysqlversions_model');
-        $this->load->model('Phpversions_model');
-
-        // Load helpers
-        $this->load->helpers('Security_helper');
-
-        // User id
-        $userId = $this->ion_auth->user()->row()->id;
-        // Todo if not -> error (+ all error management)
-
-        // 1. Get $_POST params
-        $environment = new stdClass();
-        $environment->{Environments_model::userId} = $userId;
-        $environment->{Environments_model::name} = (isset($_POST['name']) && !empty($_POST['name'])) ? trim($_POST['name']) : "Error"; // Todo generate name ?!
-        $environment->{Environments_model::webserver} = mb_strtolower((isset($_POST['webserver']) && !empty($_POST['webserver'])) ? $_POST['webserver'] : null);
-        $environment->{Environments_model::folder} = (isset($_POST['customId']) && !empty($_POST['customId'])) ? strtolower(str_replace(' ', '_', trim($_POST['customId']))) : strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
-        
-        // Todo : uniqId Or not
-        //$environment->{Environments_model::folder} = (isset($_POST['customId']) && !empty($_POST['customId'])) ? trim(strtolower(str_replace(' ', '_', $_POST['customId']))) : uniqid();
-        $environment->{Environments_model::phpVersionId} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
-        $environment->{Environments_model::phpDockerfile} = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
-        $environment->{Environments_model::mysqlVersionId} = (isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
-        $environment->{Environments_model::mysqlDockerfile} = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
-        $environment->{Environments_model::hasPma} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
-        $environment->{Environments_model::hasSftp} = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
-
-        // Get ports
-        $environment->{Environments_model::phpPort} = (isset($_POST['phpPort']) && !empty($_POST['phpPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpPort'])*/ $_POST['phpPort'] : $this->getAvailablePort();// Todo
-        $environment->{Environments_model::phpSSLPort} = (isset($_POST['phpSSLPort']) && !empty($_POST['phpSSLPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpSSLPort'])*/ $_POST['phpSSLPort'] : $this->getAvailablePort();// Todo
-        $environment->{Environments_model::mysqlPort} = (isset($_POST['mysqlPort']) && !empty($_POST['mysqlPort'])) ? /*$this->TODOchekAvailablePort($_POST['mysqlPort'])*/ $_POST['mysqlPort'] : $this->getAvailablePort();// Todo
-        $environment->{Environments_model::pmaPort} = (isset($_POST['pmaPort']) && !empty($_POST['pmaPort'])) ? /*$this->TODOchekAvailablePort($_POST['pmaPort'])*/ $_POST['pmaPort'] : $this->getAvailablePort();// Todo
-
-        // MySQL params
-        $environment->{Environments_model::mysqlUser} = (isset($_POST['mysqlUser']) && !empty($_POST['mysqlUser'])) ? $_POST['mysqlUser'] : 'root';// Todo
-        $environment->{Environments_model::mysqlPassword} = (isset($_POST['mysqlPassword']) && !empty($_POST['mysqlPassword'])) ? $_POST['mysqlPassword'] : randomPassword();// Todo
-
-        // Sftp param
-        $environment->{Environments_model::sftpUser} = (isset($_POST['sftpUser']) && !empty($_POST['sftpUser'])) ? $_POST['sftpUser'] : $environment->{Environments_model::folder};// Todo
-        $environment->{Environments_model::sftpPassword} = (isset($_POST['sftpPassword']) && !empty($_POST['sftpPassword'])) ? $_POST['sftpPassword'] : randomPassword();// Todo
-        $environment->{Environments_model::sftpPort} = (isset($_POST['sftpPort']) && !empty($_POST['sftpPort'])) ? /*$this->TODOchekAvailablePort($_POST['sftpPort'])*/ $_POST['sftpPort'] : $this->getAvailablePort();// Todo
-
-        // 2. Manage action type update or add
-        $isEditAction = false;
-        //if (isset($_POST['envId']) && !empty($_POST['envId'])) {
+        // Edit case : only name
         if (isset($_POST['initialFolderName']) && !empty($_POST['initialFolderName'])) {
 
-            $isEditAction = true;
-            //$envId = $_POST['envId'];
-            $initialFolderName = $_POST['initialFolderName'];
-
-            $isEnvDeleted = $this->deleteEnv($initialFolderName);
-            if (!$isEnvDeleted) {
-
-                exit ('UPDATE : DELETE ERROR');
-            }
+            echo 'edit';
 
         }
+        // Add case
+        else {
 
-        // Generate docker compose
-        $this->generateProjectDockerFolder($environment);
+            // Load models
+            $this->load->model('Environments_model');
+            $this->load->model('Mysqlversions_model');
+            $this->load->model('Phpversions_model');
 
-        // Add environment
-        $environmentId = $this->Environments_model->insertEnvironment($environment);
+            // Load helpers
+            $this->load->helpers('Security_helper');
 
-        if (isset($environmentId) && $environmentId != -1) {
+            // Load libs
+            $this->load->library('zip');
 
-            // Start docker compose
-            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
-            $this->startEnvironment($dockerComposePath);
+            // User id
+            $userId = $this->ion_auth->user()->row()->id;
+            // Todo if not -> error (+ all error management)
 
-            redirect('environments');
+            $phpUniqueId = uniqid();
 
-        } else {
-            // todo manage error
-            exit('Error insert env add || update !');
+            // 1. Get $_POST params
+            $environment = new stdClass();
+            $environment->{Environments_model::userId} = $userId;
+            $environment->{Environments_model::name} = (isset($_POST['name']) && !empty($_POST['name'])) ? trim($_POST['name']) : $phpUniqueId;
+            $environment->{Environments_model::webserver} = mb_strtolower((isset($_POST['webserver']) && !empty($_POST['webserver'])) ? $_POST['webserver'] : null);
+            $environment->{Environments_model::folder} = $phpUniqueId;
+            //Custom id management $environment->{Environments_model::folder} = (isset($_POST['customId']) && !empty($_POST['customId'])) ? strtolower(str_replace(' ', '_', trim($_POST['customId']))) : uniqid();
+            $environment->{Environments_model::phpVersionId} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
+            $environment->{Environments_model::phpDockerfile} = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
+            $environment->{Environments_model::mysqlVersionId} = (isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
+            $environment->{Environments_model::mysqlDockerfile} = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
+            $environment->{Environments_model::hasPma} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
+            $environment->{Environments_model::hasSftp} = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
+
+            // Get ports
+            $environment->{Environments_model::phpPort} = (isset($_POST['phpPort']) && !empty($_POST['phpPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpPort'])*/ $_POST['phpPort'] : $this->getAvailablePort();// Todo
+            $environment->{Environments_model::phpSSLPort} = (isset($_POST['phpSSLPort']) && !empty($_POST['phpSSLPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpSSLPort'])*/ $_POST['phpSSLPort'] : $this->getAvailablePort();// Todo
+            $environment->{Environments_model::mysqlPort} = (isset($_POST['mysqlPort']) && !empty($_POST['mysqlPort'])) ? /*$this->TODOchekAvailablePort($_POST['mysqlPort'])*/ $_POST['mysqlPort'] : $this->getAvailablePort();// Todo
+            $environment->{Environments_model::pmaPort} = (isset($_POST['pmaPort']) && !empty($_POST['pmaPort'])) ? /*$this->TODOchekAvailablePort($_POST['pmaPort'])*/ $_POST['pmaPort'] : $this->getAvailablePort();// Todo
+
+            // MySQL params
+            $environment->{Environments_model::mysqlUser} = (isset($_POST['mysqlUser']) && !empty($_POST['mysqlUser'])) ? $_POST['mysqlUser'] : 'root';// Todo
+            $environment->{Environments_model::mysqlPassword} = (isset($_POST['mysqlPassword']) && !empty($_POST['mysqlPassword'])) ? $_POST['mysqlPassword'] : randomPassword();// Todo
+
+            // Sftp param
+            $environment->{Environments_model::sftpUser} = (isset($_POST['sftpUser']) && !empty($_POST['sftpUser'])) ? $_POST['sftpUser'] : $environment->{Environments_model::folder};// Todo
+            $environment->{Environments_model::sftpPassword} = (isset($_POST['sftpPassword']) && !empty($_POST['sftpPassword'])) ? $_POST['sftpPassword'] : randomPassword();// Todo
+            $environment->{Environments_model::sftpPort} = (isset($_POST['sftpPort']) && !empty($_POST['sftpPort'])) ? /*$this->TODOchekAvailablePort($_POST['sftpPort'])*/ $_POST['sftpPort'] : $this->getAvailablePort();// Todo
+
+            // Generate docker compose
+            $this->generateProjectDockerFolder($environment);
+
+            // Add environment
+            $environmentId = $this->Environments_model->insertEnvironment($environment);
+
+            if (isset($environmentId) && $environmentId != -1) {
+
+                // Start docker compose
+
+                $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+                $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
+                $this->startEnvironment($dockerComposePath);
+
+                redirect('environments');
+
+            } else {
+                // todo manage error
+                exit('Error insert env add || update !');
+            }
+
         }
 
         // Todo generate compose then run it
@@ -168,6 +168,169 @@ class Environments extends MI_Controller {
         // redirect('environments');
 
     }
+
+//    public function formEnvironment()
+//    {
+//
+//
+//        exit('stop');
+//        // Todo more params setable
+//        // Todo Errors
+//        // Todo Mails (params env.php)
+//        // Todo Facto
+//        // Todo : Warning session problem (db empty & exemple : no logout)
+//        // Todo : Warning ion_auth_users_groups delete cascade (+check all)
+//
+//        // Load models
+//        $this->load->model('Environments_model');
+//        $this->load->model('Mysqlversions_model');
+//        $this->load->model('Phpversions_model');
+//
+//        // Load helpers
+//        $this->load->helpers('Security_helper');
+//
+//        // Load libs
+//        $this->load->library('zip');
+//
+//        // User id
+//        $userId = $this->ion_auth->user()->row()->id;
+//        // Todo if not -> error (+ all error management)
+//
+//        // 1. Get $_POST params
+//        $environment = new stdClass();
+//        $environment->{Environments_model::userId} = $userId;
+//        $environment->{Environments_model::name} = (isset($_POST['name']) && !empty($_POST['name'])) ? trim($_POST['name']) : "Error"; // Todo generate name ?!
+//        $environment->{Environments_model::webserver} = mb_strtolower((isset($_POST['webserver']) && !empty($_POST['webserver'])) ? $_POST['webserver'] : null);
+//        $environment->{Environments_model::folder} = (isset($_POST['customId']) && !empty($_POST['customId'])) ? strtolower(str_replace(' ', '_', trim($_POST['customId']))) : strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+//
+//        // Todo : uniqId Or not
+//        //$environment->{Environments_model::folder} = (isset($_POST['customId']) && !empty($_POST['customId'])) ? trim(strtolower(str_replace(' ', '_', $_POST['customId']))) : uniqid();
+//        $environment->{Environments_model::phpVersionId} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
+//        $environment->{Environments_model::phpDockerfile} = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
+//        $environment->{Environments_model::mysqlVersionId} = (isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
+//        $environment->{Environments_model::mysqlDockerfile} = (isset($_POST['mysqlDockerfile']) && !empty($_POST['mysqlDockerfile'])) ? $_POST['mysqlDockerfile'] : null;
+//        $environment->{Environments_model::hasPma} = (isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && isset($_POST['pma']) && !empty($_POST['pma'])) ? true : false;
+//        $environment->{Environments_model::hasSftp} = (isset($_POST['sftp']) && !empty($_POST['sftp'])) ? true : false;
+//
+//        // Get ports
+//        $environment->{Environments_model::phpPort} = (isset($_POST['phpPort']) && !empty($_POST['phpPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpPort'])*/ $_POST['phpPort'] : $this->getAvailablePort();// Todo
+//        $environment->{Environments_model::phpSSLPort} = (isset($_POST['phpSSLPort']) && !empty($_POST['phpSSLPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpSSLPort'])*/ $_POST['phpSSLPort'] : $this->getAvailablePort();// Todo
+//        $environment->{Environments_model::mysqlPort} = (isset($_POST['mysqlPort']) && !empty($_POST['mysqlPort'])) ? /*$this->TODOchekAvailablePort($_POST['mysqlPort'])*/ $_POST['mysqlPort'] : $this->getAvailablePort();// Todo
+//        $environment->{Environments_model::pmaPort} = (isset($_POST['pmaPort']) && !empty($_POST['pmaPort'])) ? /*$this->TODOchekAvailablePort($_POST['pmaPort'])*/ $_POST['pmaPort'] : $this->getAvailablePort();// Todo
+//
+//        // MySQL params
+//        $environment->{Environments_model::mysqlUser} = (isset($_POST['mysqlUser']) && !empty($_POST['mysqlUser'])) ? $_POST['mysqlUser'] : 'root';// Todo
+//        $environment->{Environments_model::mysqlPassword} = (isset($_POST['mysqlPassword']) && !empty($_POST['mysqlPassword'])) ? $_POST['mysqlPassword'] : randomPassword();// Todo
+//
+//        // Sftp param
+//        $environment->{Environments_model::sftpUser} = (isset($_POST['sftpUser']) && !empty($_POST['sftpUser'])) ? $_POST['sftpUser'] : $environment->{Environments_model::folder};// Todo
+//        $environment->{Environments_model::sftpPassword} = (isset($_POST['sftpPassword']) && !empty($_POST['sftpPassword'])) ? $_POST['sftpPassword'] : randomPassword();// Todo
+//        $environment->{Environments_model::sftpPort} = (isset($_POST['sftpPort']) && !empty($_POST['sftpPort'])) ? /*$this->TODOchekAvailablePort($_POST['sftpPort'])*/ $_POST['sftpPort'] : $this->getAvailablePort();// Todo
+//
+//        // 2. Manage action type update or add
+//        $isEditAction = false;
+//        $tmpSourceFolderPath = '';
+//        $newFolderSrcPath = '';
+//        //if (isset($_POST['envId']) && !empty($_POST['envId'])) {
+//        if (isset($_POST['initialFolderName']) && !empty($_POST['initialFolderName'])) {
+//
+//            $isEditAction = true;
+//
+//            // TODO : php copy SRC
+//            // TODO : check if name/id different than intial
+//            // TODO : sql keep DB
+//            // TODO : sftp ?!
+//
+//            // Get initial folder name
+//            $initialFolderName = $_POST['initialFolderName'];
+//
+//            // Get ENVS path
+//            $path = getcwd() . '/' . ABSOLUTE_ENVS_FOLDER . '/';
+//
+//            // Set initial src folder path
+//            $initialFolderSrcPath = $path . $initialFolderName . "/src";
+//
+//            // Set new src folder path
+//            $newFolderSrcPath = $path . $environment->{Environments_model::folder} . "/src";
+//
+//            // Create tmp_src_folder
+//            $tmpSourceFolderPath = $path . '/tmp_src_folder_' . $initialFolderName;
+//            shell_exec('mkdir ' . $tmpSourceFolderPath);
+//
+//            // Move files from actual src folder to tmp src folder
+//            shell_exec('mv -v ' . $initialFolderSrcPath . '/* ' . $tmpSourceFolderPath);
+//            shell_exec('mv -v ' . $initialFolderSrcPath . '/.* ' . $tmpSourceFolderPath);
+//
+//            //$envId = $_POST['envId'];
+//
+//            $isEnvDeleted = $this->deleteEnv($initialFolderName);
+//            if (!$isEnvDeleted) {
+//                exit ('UPDATE : DELETE ERROR');
+//            }
+//
+//        }
+//
+//        // Generate docker compose
+//        $this->generateProjectDockerFolder($environment);
+//
+//        if ($isEditAction) {
+//
+//            // Move initial files to new src folder
+//            shell_exec('mv -v ' . $tmpSourceFolderPath . '/* ' . $newFolderSrcPath);
+//            shell_exec('mv -v ' . $tmpSourceFolderPath . '/.* ' . $newFolderSrcPath);
+//
+//
+//            // Delete tmp folder
+//            shell_exec('rm ' . $tmpSourceFolderPath);
+//
+//        }
+//
+//        // Add environment
+//        $environmentId = $this->Environments_model->insertEnvironment($environment);
+//
+//        if (isset($environmentId) && $environmentId != -1) {
+//
+//            // Start docker compose
+//            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
+//            $this->startEnvironment($dockerComposePath);
+//
+//            redirect('environments');
+//
+//        } else {
+//            // todo manage error
+//            exit('Error insert env add || update !');
+//        }
+//
+//        // Todo generate compose then run it
+//        // Send mail admin
+//        // redirect('environments');
+//
+//    }
+
+    function recursive_copy($source, $dest)
+    {
+        if(is_dir($source))
+    {
+        if(!is_dir($dest))
+        {
+            mkdir($dest, 0777, true);
+        }
+
+        $dir_items = array_diff(scandir($source), array('..', '.'));
+
+        if(count($dir_items) > 0)
+        {
+            foreach($dir_items as $v)
+            {
+                $this->recursive_copy(rtrim(rtrim($source, '/'), '\\').DIRECTORY_SEPARATOR.$v, rtrim(rtrim($dest, '/'), '\\').DIRECTORY_SEPARATOR.$v);
+            }
+        }
+    }
+    elseif(is_file($source))
+    {
+        copy($source, $dest);
+    }
+}
 
     /*
      * Form submission methods END
@@ -242,7 +405,8 @@ class Environments extends MI_Controller {
 			$this->generateProjectDockerFolder($environment);
 
 			// Start docker compose
-            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
+            $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
             $this->startEnvironment($dockerComposePath);
 
             $response = true;
@@ -257,9 +421,10 @@ class Environments extends MI_Controller {
 	{
 		$response = false;
 
-		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
+		if (isset($_GET['name']) && !empty($_GET['name'])) {
 
-			$dockerComposePath = INNER_ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+            $folderName = strtolower(str_replace(' ', '_', trim($_GET['name'])));
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
             $this->stopEnvironment($dockerComposePath);
 
 			$response = true;
@@ -286,16 +451,18 @@ class Environments extends MI_Controller {
 
         $response = false;
 
-        if (isset($_GET['folder']) && !empty($_GET['folder'])) {
+        if (isset($_GET['name']) && !empty($_GET['name'])) {
 
-            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $_GET['folder'] . "/";
+
+            $folderName = strtolower(str_replace(' ', '_', trim($_GET['name'])));
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
             $this->stopEnvironment($dockerComposePath);
             $this->deleteEnvironment($dockerComposePath);
 
-            $this->Environments_model->deleteEnvironmentByFolder($_GET['folder']);
+            $this->Environments_model->deleteEnvironmentByName($_GET['name']);
 
             // Delete project folder
-            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; rm -rf ' . $_GET['folder'] . ';');
+            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; rm -rf ' . $folderName . ';');
 
             $response = true;
 
@@ -327,7 +494,7 @@ class Environments extends MI_Controller {
 
 		}
 
-		$this->cleanAllDockerEnv();// Todo careful
+		// $this->cleanAllDockerEnv();// Todo careful
 
         return $response;
 	}
@@ -479,7 +646,8 @@ class Environments extends MI_Controller {
 				if (isset($environmentId) && $environmentId != -1) {
 
 					// Start docker compose
-                    $dockerComposePath = INNER_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
+                    $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+                    $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
 					$this->startEnvironment($dockerComposePath);
 
 					redirect('environments');
@@ -649,26 +817,27 @@ class Environments extends MI_Controller {
 			// Todo error
 		}
 
-
+		// Folder name
+        $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
 		// Todo : manage dynamic, if user don't select php don't do that
-        $filename = ABSOLUTE_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/src/index.php";
+        $filename = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/src/index.php";
         if (!file_exists($filename)){
 
             // Create project folder
-            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $environment->{Environments_model::folder} . '; chmod 777 -R ' . $environment->{Environments_model::folder} . '; cd ' . $environment->{Environments_model::folder}. '; mkdir src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php ; chmod 777 index.php');
+            shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; mkdir ' . $folderName . '; chmod 777 -R ' . $folderName . '; cd ' . $folderName . '; mkdir src; cd src; echo "<?php echo phpinfo(); ?>" >> index.php ; chmod 777 index.php');
 
         }
 
         // Create php folder (dockerfile)
-        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $environment->{Environments_model::folder} . '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName. '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
 
         if (isset($environment) && !empty($environment)) {
 
-            $dockerComposePath = ABSOLUTE_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/";
+            $dockerComposePath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/";
             file_put_contents($dockerComposePath . "docker-compose.yml", $environment->{Environments_model::dockerCompose});
 
             // Todo php dockerfile
-            $dockerfilePhpPath = ABSOLUTE_ENVS_FOLDER . "/" . $environment->{Environments_model::folder} . "/image/php/";
+            $dockerfilePhpPath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/image/php/";
             file_put_contents($dockerfilePhpPath . "Dockerfile", $environment->{Environments_model::phpDockerfile});
 
         } else {
@@ -676,8 +845,8 @@ class Environments extends MI_Controller {
         }
 
         // CHMOD -R 777 folder
-        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod 777 -R ' . $environment->{Environments_model::folder} . ';');
-        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod -R 777 ' . $environment->{Environments_model::folder} . ';');
+        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod 777 -R ' . $folderName . ';');
+        shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; chmod -R 777 ' . $folderName . ';');
 
 	}
 
