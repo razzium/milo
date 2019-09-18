@@ -778,7 +778,7 @@ class Environments extends MI_Controller {
         /*		if ($data[$environment->{Environments_model::hasSftp}]) {
                     $filePath = "templates/docker/compose/docker-compose-sftp.yml";
                 } else {
-                    $filePath = "templates/docker/compose/docker-compose-sftp-disabled.yml";
+                    $flePath = "templates/docker/compose/docker-compose-sftp-disabled.yml";
                 }*/
         if (isset($environment->{Environments_model::hasSftp}) && !empty($environment->{Environments_model::hasSftp})) {
             $filePath = "templates/docker/compose/docker-compose-sftp.yml";
@@ -928,11 +928,19 @@ class Environments extends MI_Controller {
                 }
 
                 // Create php folder (dockerfile)
-                shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName. '; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
+                $dockerFolderPath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/docker";
+                if (!file_exists($dockerFolderPath)){
+
+                    // Create docker project folder
+                    shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName . '; mkdir docker; chmod -R 777 docker;');
+
+                }
+
+                shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName. '; cd docker; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
 
 
                 // Todo php dockerfile
-                $dockerfilePhpPath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/image/php/";
+                $dockerfilePhpPath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/docker/image/php/";
                 file_put_contents($dockerfilePhpPath . "Dockerfile", $environment->{Environments_model::phpDockerfile});
 
             }

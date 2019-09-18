@@ -1,7 +1,7 @@
 
   php-{project}:
     restart: always
-    build: image/php
+    build: docker/image/php
     depends_on:
       - mysql-{project}
     ports:
