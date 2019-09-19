@@ -30,12 +30,17 @@ class Environments extends MI_Controller {
                 foreach ($environments as $environment) {
 
                     if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId})) {
+
                         $environment->has_php = "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>";
+
                     } else {
+
                         $environment->has_php = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
                         $environment->{Environments_model::phpVersionId} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
                         $environment->{Environments_model::phpPort} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
                         $environment->{Environments_model::phpSSLPort} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+                        $environment->{Environments_model::xDebugRemoteHost} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
+
                     }
 
                     if (isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId})) {
@@ -63,6 +68,8 @@ class Environments extends MI_Controller {
                         $environment->{Environments_model::sftpPassword} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
                         $environment->{Environments_model::sftpPort} = "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>";
                     }
+
+
                 }
 
                 if (isset($environments) && !empty($environments)) {
@@ -180,6 +187,10 @@ class Environments extends MI_Controller {
             $environment->{Environments_model::sftpPort} = (isset($_POST['sftpPort']) && !empty($_POST['sftpPort'])) ? /*$this->TODOchekAvailablePort($_POST['sftpPort'])*/ $_POST['sftpPort'] : $this->getAvailablePort();// Todo
         }
 
+        // Set xDebug
+        if ($_POST['xDebugTrigger']) {
+            $environment->{Environments_model::xDebugRemoteHost} = (isset($_POST['xDebugRemoteHost']) && !empty($_POST['xDebugRemoteHost'])) ? $_POST['xDebugRemoteHost'] : '0.0.0.0';
+        }
 
         // 5. Generate docker compose
         $isProjectDockerFolderCreated = $this->generateProjectDockerFolder($environment);
@@ -428,6 +439,40 @@ class Environments extends MI_Controller {
 
     }
 
+    public function updateXDebugRemoteHostByAjax()
+    {
+
+        // Load models
+        $this->load->model('Environments_model');
+        $this->load->model('Mysqlversions_model');
+        $this->load->model('Phpversions_model');
+
+        $response = false;
+
+        if (isset($_POST['folder']) && !empty($_POST['folder'])) {
+
+            $environment = $this->Environments_model->getEnvironmentByFolder($_POST['folder']);
+            $environment->{Environments_model::xDebugRemoteHost} = $_POST['newXDebugRemote'];
+
+            // Generate docker compose
+            $isProjectDockerFolderUpdated = $this->generateProjectDockerFolder($environment);
+            if ($isProjectDockerFolderUpdated) {
+                $this->Environments_model->editEnvironment($environment);
+            }
+
+            // Start docker compose
+            $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+            $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
+            $this->startEnvironment($dockerComposePath);
+
+            $response = true;
+
+        }
+
+        echo json_encode($response);
+
+    }
+
     public function startEnv()
     {
 
@@ -474,12 +519,12 @@ class Environments extends MI_Controller {
         echo json_encode($response);
     }
 
-    // Todo : WARNING -> use with care ! (clean/prune all docker host env)
+    // Todo : WARNING disabled -> use with care ! (clean/prune all docker host env)
     public function cleanAllDockerEnv()
     {
 
         // Delete useless volumes
-        shell_exec('sudo docker system prune --volumes -f');
+        //shell_exec('sudo docker system prune --volumes -f');
         echo json_encode(true);
 
     }
@@ -492,15 +537,16 @@ class Environments extends MI_Controller {
 
         $response = false;
 
-        if (isset($_GET['name']) && !empty($_GET['name'])) {
+        if (isset($_POST['name']) && !empty($_POST['name']) && isset($_POST['folder']) && !empty($_POST['folder'])) {
 
-
-            $folderName = strtolower(str_replace(' ', '_', trim($_GET['name'])));
+            $folderName = strtolower(str_replace(' ', '_', trim($_POST['name'])));
+            $networkName = $folderName . "_default";
+            $volumeName = $folderName . "_mysql_dir-" . $_POST['folder'];
             $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
             $this->stopEnvironment($dockerComposePath);
-            $this->deleteEnvironment($dockerComposePath);
+            $this->deleteEnvironment($dockerComposePath, $networkName, $volumeName);
 
-            $this->Environments_model->deleteEnvironmentByName($_GET['name']);
+            $this->Environments_model->deleteEnvironmentByName($_POST['name']);
 
             // Delete project folder
             shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; rm -rf ' . $folderName . ';');
@@ -851,6 +897,9 @@ class Environments extends MI_Controller {
                 $data['localPath'] = $localPath;
                 $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
+                // Todo check if xDebug
+                $data['xDebug_remote_host'] = $environment->{Environments_model::xDebugRemoteHost};
+
                 // Create image/php dockerfile
                 $filePath = "templates/docker/dockerfile/php/dockerfile-php.php";
                 $dockerfile = $this->parser->parse($filePath, $data, TRUE);
@@ -967,7 +1016,7 @@ class Environments extends MI_Controller {
 
     private function startEnvironment($dockerComposePath)
     {
-        shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d\'');
+        shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build\'');
     }
 
     private function stopEnvironment($dockerComposePath)
@@ -975,9 +1024,12 @@ class Environments extends MI_Controller {
         shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose stop\'');
     }
 
-    private function deleteEnvironment($dockerComposePath)
+    private function deleteEnvironment($dockerComposePath, $networkName, $volumeName)
     {
+
         shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose rm -f\'');
+        shell_exec('sudo docker exec docker-dood-milo bash -c \'docker network rm ' . $networkName . '\'');
+        shell_exec('sudo docker exec docker-dood-milo bash -c \'docker volume rm ' . $volumeName . '\'');
     }
 
     private function startEnvironmentById($envId)

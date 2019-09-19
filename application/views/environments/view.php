@@ -49,6 +49,7 @@
                         <th>Php version</th>
                         <th>Php port</th>
                         <th>Php SSL port</th>
+                        <th>xDebug Remote Host</th>
                         <th>MySQL / MariaDB version</th>
                         <th>MySQL / MariaDB root user</th>
                         <th>MySQL / MariaDB root password</th>
@@ -93,6 +94,8 @@
 <script language="JavaScript" src="https://cdn.datatables.net/responsive/2.1.1/js/responsive.bootstrap.min.js" type="text/javascript"></script>
 
 <script>
+
+    $( "#loader" ).hide();
 
     function getStatus (withMessage) {
 
@@ -196,6 +199,29 @@
                     }
                 }
             },
+            {
+                "data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",// Todo : UGLY !!!
+                "data": function (data) {
+                    if (data.has_php == "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>") {
+
+                        if (data.xDebug_remote_host != "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>") {
+
+                            if (data.xDebug_remote_host != null && data.xDebug_remote_host != undefined && data.xDebug_remote_host != 0) {
+                                return '<a onclick="updateXDebugRemoteHost(\'' + data.folder + '\')"><span id="env_' + data.folder + '">' + data.xDebug_remote_host + '</span></a>'
+                            } else {
+                                return '<a onclick="updateXDebugRemoteHost(\'' + data.folder + '\')"><span id="env_' + data.folder + '">' + 'Set xDebug Remote Host' + '</span></a>'
+                            }
+
+
+                        } else {
+                            return data.xDebug_remote_host
+                        }
+
+                    } else {
+                        return data.xDebug_remote_host
+                    }
+                }
+            },
             /*{ "data": "<?= Environments_model::phpPort ?>" },*/
             { "data": "<?= Environments_model::mysqlVersionId ?>" },
             { "data": "<?= Environments_model::mysqlUser ?>" },
@@ -227,7 +253,7 @@
                 "data": function (data) {
                     return '<button onclick="startEnv(\'' + data.folder + '\')" class="btn btn-success" type="button"> Start </button> &nbsp; '	 +
                         '<button onclick="stopEnv(\'' + data.name + '\')" class="btn btn-info" type="button"> Stop </button> &nbsp; ' +
-                        '<button onclick="deleteEnv(\'' + data.name + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; ' +
+                        '<button onclick="deleteEnv(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; ' +
                         '<button onclick="editEnv(\'' + data.folder + '\')" class="btn btn-primary" type="button"> Edit </button> &nbsp; ' +
                         '<button onclick="exportEnv(\'' + data.folder + '\')" class="btn btn-warning" type="button"> Export </button> &nbsp; '
                     /*						return '<button class="btn btn-success" type="button"> View </button> &nbsp; ' +
@@ -277,9 +303,89 @@
 
     }
 
+    function ValidateIPaddress(ipaddress) {
+        if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {
+            return (true)
+        }
+        return (false)
+    }
+
+    function updateXDebugRemoteHost(folder) {
+
+        var msg = "ENTER xDebug REMOTE HOST -> type \"FALSE\" to disable (Tips UNIX : to know your remote adress use this command : \"ifconfig | grep -Eo 'inet (addr:)?([0-9]*\\.){3}[0-9]*' | grep -Eo '([0-9]*\\.){3}[0-9]*' | grep -v '127.0.0.1'\")";
+        var newXDebugRemote = prompt(msg);
+        if (newXDebugRemote != null && newXDebugRemote != undefined && newXDebugRemote !== "") {
+
+            var actualRemoteHostId = '#env_'+folder;
+            var actualRemoteHost = $(actualRemoteHostId).text();
+
+            if (newXDebugRemote == "FALSE") {
+                newXDebugRemote = null;
+            }
+            else if (!ValidateIPaddress(newXDebugRemote) && newXDebugRemote != "localhost") {
+                alert('Invalid xDebug Remote Host');
+                return;
+            } else if (newXDebugRemote == actualRemoteHost) {
+                alert('Enter a different xDebug Remote Host');
+                return;
+            }
+
+            Pace.restart();
+
+            $( "#loader" ).show();
+
+            var form_data = {
+                folder : folder,
+                newXDebugRemote : newXDebugRemote,
+            };
+
+            $.ajax({
+                url: "<?php echo base_url('environments/environments/updateXDebugRemoteHostByAjax'); ?>",
+                type: 'POST',
+                data: form_data,
+                dataType: 'json',
+                async : true,
+                success:function(response){
+
+                    $( "#loader" ).hide();
+
+                    console.log(response);
+
+                    window.location.reload();
+
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+
+                    $( "#loader" ).hide();
+
+                    alert('Error : updateXDebugRemoteHostByAjax error !');
+
+                    getStatus();
+
+                    console.log('Error : updateXDebugRemoteHostByAjax ajax error !'); // Todo manage error !
+
+                    if (xhr) {
+                        console.log("ERROR (xhr) : " + xhr);
+                    }
+
+                    if (ajaxOptions) {
+                        console.log("ERROR (ajaxOptions) : " + ajaxOptions);
+                    }
+
+                    if (thrownError) {
+                        console.log("ERROR (thrownError) : " + thrownError);
+                    }
+
+                },
+            });
+        }
+
+    }
+
     function startEnv (folder) {
 
         Pace.restart();
+        $( "#loader" ).show();
 
         var form_data = {
             folder : folder
@@ -292,6 +398,7 @@
             dataType: 'json',
             async : true,
             success:function(response){
+                $( "#loader" ).hide();
                 if (response) {
                     getStatus();
                 } else {
@@ -299,6 +406,8 @@
                 }
             },
             error:function (xhr, ajaxOptions, thrownError){
+
+                $( "#loader" ).hide();
 
                 getStatus();
 
@@ -324,6 +433,8 @@
 
         Pace.restart();
 
+        $( "#loader" ).show();
+
         var form_data = {
             name : name
         };
@@ -335,6 +446,7 @@
             dataType: 'json',
             async : true,
             success:function(response){
+                $( "#loader" ).hide();
                 if (response) {
                     getStatus();
                 } else {
@@ -342,6 +454,8 @@
                 }
             },
             error:function (xhr, ajaxOptions, thrownError){
+
+                $( "#loader" ).hide();
 
                 getStatus();
 
@@ -375,17 +489,20 @@
 
     }
 
-    function deleteEnv (name) {
+    function deleteEnv (name, folder) {
 
         Pace.restart();
 
+        $( "#loader" ).show();
+
         var form_data = {
-            name : name
+            name : name,
+            folder : folder
         };
 
         $.ajax({
             url: "<?php echo base_url('environments/environments/deleteEnvAjax'); ?>",
-            type: 'GET',
+            type: 'POST',
             data: form_data,
             dataType: 'json',
             async : true,
@@ -394,6 +511,8 @@
             },
             error:function (xhr, ajaxOptions, thrownError){
 
+
+                $( "#loader" ).hide();
                 alert('Error : delete env');
                 getStatus();
 
@@ -468,4 +587,5 @@
         background-color: #bbb;
         display: inline-block;
     }
+
 </style>

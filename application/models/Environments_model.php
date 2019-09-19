@@ -30,6 +30,7 @@ class Environments_model extends CI_Model {
     const sftpPassword = 'sftp_password';
     const sftpPort = 'sftp_port';
     const dockerCompose = 'docker_compose';
+    const xDebugRemoteHost = 'xDebug_remote_host';
     const createdDate = 'created_date';
 
     const creator = 'creator';
@@ -59,6 +60,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::sftpPassword,
             self::table . '.' . self::sftpPort,
             self::table . '.' . self::dockerCompose,
+            self::table . '.' . self::xDebugRemoteHost,
             self::table . '.' . self::createdDate,
             'ion_auth_users.username AS ' . self::creator,
             'php_versions.version AS ' . self::phpVersionId,
@@ -98,6 +100,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::sftpPassword,
             self::table . '.' . self::sftpPort,
             self::table . '.' . self::dockerCompose,
+            self::table . '.' . self::xDebugRemoteHost,
             self::table . '.' . self::createdDate
         ];
 
@@ -136,6 +139,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::sftpPassword,
             self::table . '.' . self::sftpPort,
             self::table . '.' . self::dockerCompose,
+            self::table . '.' . self::xDebugRemoteHost,
             self::table . '.' . self::createdDate
         ];
 
@@ -170,6 +174,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::sftpPassword,
             self::table . '.' . self::sftpPort,
             self::table . '.' . self::dockerCompose,
+            self::table . '.' . self::xDebugRemoteHost,
             self::table . '.' . self::createdDate,
             'ion_auth_users.username AS ' . self::creator,
             'php_versions.version AS ' . self::phpVersionId,
@@ -233,6 +238,19 @@ class Environments_model extends CI_Model {
         } else {
             return -1;
         }
+    }
+
+    public function editEnvironment($environment) {
+
+        $this->db->where(self::pk, $environment->{self::pk});
+        $this->db->update(self::table, $environment);
+
+        if($this->db->affected_rows() >=0){
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     public function deleteEnvironmentByFolder($folder) {
