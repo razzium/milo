@@ -385,7 +385,7 @@
     function startEnv (folder) {
 
         Pace.restart();
-        $( "#loader" ).show();
+        //$( "#loader" ).show();
 
         var form_data = {
             folder : folder
@@ -433,7 +433,7 @@
 
         Pace.restart();
 
-        $( "#loader" ).show();
+        //$( "#loader" ).show();
 
         var form_data = {
             name : name

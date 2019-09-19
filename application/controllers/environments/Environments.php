@@ -558,7 +558,7 @@ class Environments extends MI_Controller {
         echo json_encode($response);
     }
 
-    public function deleteEnv($folderName)
+/*    public function deleteEnv($folderName)
     {
 
         // Load models
@@ -570,6 +570,10 @@ class Environments extends MI_Controller {
 
             $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
             $this->stopEnvironment($dockerComposePath);
+
+            $networkName = $folderName . "_default";
+            $volumeName = $folderName . "_mysql_dir-" . $_POST['folder'];
+
             $this->deleteEnvironment($dockerComposePath);
 
             $this->Environments_model->deleteEnvironmentByFolder($folderName);
@@ -584,7 +588,7 @@ class Environments extends MI_Controller {
         // $this->cleanAllDockerEnv();// Todo careful
 
         return $response;
-    }
+    }*/
 
     // Todo : check by project attributes !!! (ex : if no sql, do not check sql !)
     public function checkStatus()
@@ -1026,7 +1030,6 @@ class Environments extends MI_Controller {
 
     private function deleteEnvironment($dockerComposePath, $networkName, $volumeName)
     {
-
         shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose rm -f\'');
         shell_exec('sudo docker exec docker-dood-milo bash -c \'docker network rm ' . $networkName . '\'');
         shell_exec('sudo docker exec docker-dood-milo bash -c \'docker volume rm ' . $volumeName . '\'');
