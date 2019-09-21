@@ -525,6 +525,7 @@ class Environments extends MI_Controller {
 
         // Delete useless volumes
         //shell_exec('sudo docker system prune --volumes -f');
+        //shell_exec('docker system prune --volumes -f');
         echo json_encode(true);
 
     }
@@ -617,7 +618,8 @@ class Environments extends MI_Controller {
 
                 // Check MySQL
                 $mySqlContainer = $envName . "_mysql-" . $envId . "_1";
-                $cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $mySqlContainer. ';';
+                //$cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $mySqlContainer. ';';
+                $cmd = 'docker inspect -f "{{.State.Running}}" ' . $mySqlContainer. ';';
                 $mySqlContainerStatus = shell_exec($cmd);
 
                 if (isset($mySqlContainerStatus) && !empty($mySqlContainerStatus) && strpos($mySqlContainerStatus, 'true') !== false) {
@@ -633,7 +635,8 @@ class Environments extends MI_Controller {
 
                 // Check php
                 $phpContainer = $envName . "_php-" . $envId . "_1";
-                $cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
+                //$cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
+                $cmd = 'docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
                 $phpContainerStatus = shell_exec($cmd);
 
                 if (isset($phpContainerStatus) && !empty($phpContainerStatus) && strpos($phpContainerStatus, 'true') !== false) {
@@ -648,7 +651,8 @@ class Environments extends MI_Controller {
 
                 // Check PMA
                 $sftpContainer = $envName . "_sftp-" . $envId . "_1";
-                $cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $sftpContainer. ';';
+                //$cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $sftpContainer. ';';
+                $cmd = 'docker inspect -f "{{.State.Running}}" ' . $sftpContainer. ';';
                 $sftpContainerStatus = shell_exec($cmd);
 
                 if (isset($sftpContainerStatus) && !empty($sftpContainerStatus) && strpos($sftpContainerStatus, 'true') !== false) {
@@ -663,7 +667,8 @@ class Environments extends MI_Controller {
 
                 // Check PMA
                 $pmaContainer = $envName . "_phpmyadmin-" . $envId . "_1";
-                $cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $pmaContainer. ';';
+                //$cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $pmaContainer. ';';
+                $cmd = 'docker inspect -f "{{.State.Running}}" ' . $pmaContainer. ';';
                 $pmaContainerStatus = shell_exec($cmd);
 
                 if (isset($pmaContainerStatus) && !empty($pmaContainerStatus) && strpos($pmaContainerStatus, 'true') !== false) {
@@ -1020,19 +1025,26 @@ class Environments extends MI_Controller {
 
     private function startEnvironment($dockerComposePath)
     {
-        shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build\'');
+        //shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build\'');
+        shell_exec('docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build\'');
     }
 
     private function stopEnvironment($dockerComposePath)
     {
-        shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose stop\'');
+        //shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose stop\'');
+        shell_exec('docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose stop\'');
     }
 
     private function deleteEnvironment($dockerComposePath, $networkName, $volumeName)
     {
-        shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose rm -f\'');
-        shell_exec('sudo docker exec docker-dood-milo bash -c \'docker network rm ' . $networkName . '\'');
-        shell_exec('sudo docker exec docker-dood-milo bash -c \'docker volume rm ' . $volumeName . '\'');
+
+        shell_exec('docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose rm -f\'');
+        shell_exec('docker exec docker-dood-milo bash -c \'docker network rm ' . $networkName . '\'');
+        shell_exec('docker exec docker-dood-milo bash -c \'docker volume rm ' . $volumeName . '\'');
+
+        //shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose rm -f\'');
+        //shell_exec('sudo docker exec docker-dood-milo bash -c \'docker network rm ' . $networkName . '\'');
+        //shell_exec('sudo docker exec docker-dood-milo bash -c \'docker volume rm ' . $volumeName . '\'');
     }
 
     private function startEnvironmentById($envId)
@@ -1074,7 +1086,8 @@ class Environments extends MI_Controller {
     {
 
 
-        $portsStr = shell_exec('sudo docker ps --format "{{.Ports}}";');
+        //$portsStr = shell_exec('sudo docker ps --format "{{.Ports}}";');
+        $portsStr = shell_exec('docker ps --format "{{.Ports}}";');
 
         $portsArray = explode("tcp", $portsStr);
 
