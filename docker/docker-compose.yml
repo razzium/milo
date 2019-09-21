@@ -40,7 +40,7 @@ services:
       - "33060:3306"
     volumes:
       - mariadb-milo_dir:/var/lib/mysql
-     # - ./image/mariadb:/docker-entrypoint-initdb.d TODO !!!
+      - ./image/mariadb:/docker-entrypoint-initdb.d
     expose:
       - "3306"
 
