@@ -7,11 +7,11 @@ fi
 cd docker;
 
 # RUN docker razzium dind (dood)
-#docker run -d -ti -v /var/run/docker.sock:/var/run/docker.sock -v ${PWD}:/${PWD} --name docker-dood-milo -w="$PWD" --restart always razzium/dind
+docker run -d -ti -v /var/run/docker.sock:/var/run/docker.sock -v ${PWD}:/${PWD} --name docker-dood-milo -w="$PWD" --restart always razzium/dind
 
 # Run docker sftp & mariadb
 #docker-compose up -d --build --force-recreate;
-docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock -v $PWD:$PWD docker/compose:1.23.2 -f $PWD/docker-compose.yml up -d --build --force-recreate
+#docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock -v $PWD:$PWD docker/compose:1.23.2 -f $PWD/docker-compose.yml up -d --build --force-recreate
 
 # Chmod envs folder
 chmod -R 777 envs;

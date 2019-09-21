@@ -3,16 +3,16 @@ version: '3'
 services:
 
   # Docker compose way
-  docker-dood-milo:
-    restart: always
-    image: razzium/dind
-    container_name: docker-dood-milo
-    privileged: true
-    volumes:
-    #  - ${PWD}:/${PWD}
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    #working_dir: $PWD
-    tty: true
+#  docker-dood-milo:
+#    restart: always
+#    image: razzium/dind
+#    container_name: docker-dood-milo
+#    privileged: true
+#    volumes:
+#      - ${PWD}:/${PWD}
+#      - "/var/run/docker.sock:/var/run/docker.sock"
+#    working_dir: $PWD
+#    tty: true
 
 # Docker in docker -> todo PORTS mapping
 # cmd ex : sudo docker exec docker-dind-milo bash -c 'cd envs;cd deploy_preprod_1;docker-compose up -d'
