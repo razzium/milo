@@ -9,7 +9,7 @@ services:
     container_name: docker-dood-milo
     privileged: true
     volumes:
-      - "$PWD:/$PWD"
+      - $PWD:$PWD
       - "/var/run/docker.sock:/var/run/docker.sock"
     working_dir: $PWD
     tty: true
