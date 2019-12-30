@@ -63,6 +63,7 @@ CREATE TABLE `environments` (
   `sftp_password` text NOT NULL,
   `sftp_port` bigint(20) DEFAULT NULL,
   `docker_compose` longtext DEFAULT NULL,
+  `xDebug_remote_host` text DEFAULT NULL,
   `created_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
