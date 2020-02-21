@@ -78,9 +78,8 @@ if (isset($environment) && !empty($environment)) {
                     ?>
                 </select>
             </div>
+
             <div id="xDebugDiv" class="form-group">
-
-
 
                 <div>
                     <span>Options</span>
@@ -157,7 +156,6 @@ if (isset($environment) && !empty($environment)) {
 
 <script>
     $(function() {
-
 
         $( "#loader" ).hide();
 
@@ -296,6 +294,11 @@ if (isset($environment) && !empty($environment)) {
             if ( this.value.includes("custom") ) {
                 $( "#phpDockerfileDiv" ).show();
             } else {
+            	if (this.value == 3) {// Todo if php 7.3
+					$( "#xDebugDiv" ).hide();
+				} else {
+					$( "#xDebugDiv" ).show();
+				}
                 $( "#phpDockerfileDiv" ).hide();
             }
 

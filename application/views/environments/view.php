@@ -202,6 +202,7 @@
             {
                 "data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",// Todo : UGLY !!!
                 "data": function (data) {
+
                     if (data.has_php == "<span style=\"color:green\" class=\"glyphicon glyphicon-ok\"></span>") {
 
                         if (data.xDebug_remote_host != "<span style=\"color:red\" class=\"glyphicon glyphicon-remove\"></span>") {
@@ -209,7 +210,11 @@
                             if (data.xDebug_remote_host != null && data.xDebug_remote_host != undefined && data.xDebug_remote_host != 0) {
                                 return '<a onclick="updateXDebugRemoteHost(\'' + data.folder + '\')"><span id="env_' + data.folder + '">' + data.xDebug_remote_host + '</span></a>'
                             } else {
-                                return '<a onclick="updateXDebugRemoteHost(\'' + data.folder + '\')"><span id="env_' + data.folder + '">' + 'Set xDebug Remote Host' + '</span></a>'
+                            	if (data.php_version_id != "7.3") {
+									return '<a onclick="updateXDebugRemoteHost(\'' + data.folder + '\')"><span id="env_' + data.folder + '">' + 'Set xDebug Remote Host' + '</span></a>'
+								} else {
+									return '<span id="env_' + data.folder + '">N/A</span>'
+								}
                             }
 
 

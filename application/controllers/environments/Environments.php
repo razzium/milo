@@ -910,7 +910,11 @@ class Environments extends MI_Controller {
                 $data['xDebug_remote_host'] = $environment->{Environments_model::xDebugRemoteHost};
 
                 // Create image/php dockerfile
-                $filePath = "templates/docker/dockerfile/php/dockerfile-php.php";
+				if ($environment->{Environments_model::phpVersionId} == 3) {// Todo for php 7.3 (different Dockerfile) -> dirty
+					$filePath = "templates/docker/dockerfile/php/dockerfile-php_7-3.php";
+				} else {
+					$filePath = "templates/docker/dockerfile/php/dockerfile-php.php";
+				}
                 $dockerfile = $this->parser->parse($filePath, $data, TRUE);
                 $environment->{Environments_model::phpDockerfile} = $dockerfile;
 

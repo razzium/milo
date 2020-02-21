@@ -248,6 +248,7 @@ INSERT INTO `php_versions` (`id`, `version`, `tag`, `env`, `is_active`)
 VALUES
 	(1,'7.1','php:7.1-apache','apache',1),
 	(2,'5.6','php:5.6-apache','apache',1);
+	(3,'7.3','php:7.3-apache','apache',1);
 
 /*!40000 ALTER TABLE `php_versions` ENABLE KEYS */;
 UNLOCK TABLES;
