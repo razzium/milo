@@ -260,7 +260,8 @@
                         '<button onclick="stopEnv(\'' + data.name + '\')" class="btn btn-info" type="button"> Stop </button> &nbsp; ' +
                         '<button onclick="deleteEnv(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; ' +
                         '<button onclick="editEnv(\'' + data.folder + '\')" class="btn btn-primary" type="button"> Edit </button> &nbsp; ' +
-                        '<button onclick="exportEnv(\'' + data.folder + '\')" class="btn btn-warning" type="button"> Export </button> &nbsp; '
+						'<button onclick="exportEnv(\'' + data.folder + '\')" class="btn btn-warning" type="button"> Export </button> &nbsp; ' +
+                        '<button onclick="composerEnv(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-info" type="button"> Composer </button> &nbsp; '
                     /*						return '<button class="btn btn-success" type="button"> View </button> &nbsp; ' +
                                                 '<button class="btn btn-info" type="button"> Stop </button> &nbsp; '	 +
                                                 '<button class="btn btn-danger" type="button"> Delete </button> &nbsp; '*/						}
@@ -493,6 +494,60 @@
         window.location.href ="<?= base_url() . 'edit-environment?id=' ?>" + folder;
 
     }
+
+	function composerEnv (name, folder) {
+
+		//Pace.restart();
+		$( "#loader" ).show();
+
+		var form_data = {
+			folder : folder,
+			name : name
+		};
+
+		$.ajax({
+			url: "<?php echo base_url('environments/environments/composerEnv'); ?>",
+			type: 'GET',
+			data: form_data,
+			dataType: 'json',
+			async : true,
+			success:function(response){
+				$( "#loader" ).hide();
+				if (response) {
+					alert("Composer install success !")
+				} else {
+					alert("Composer install failed !")
+				}
+			},
+			error:function (xhr, ajaxOptions, thrownError){
+
+				$( "#loader" ).hide();
+
+				alert("Composer install failed !")
+
+				console.log('Error : composerEnv ajax error !'); // Todo manage error !
+
+				if (xhr) {
+					console.log("ERROR (xhr) : " + xhr);
+				}
+
+				if (ajaxOptions) {
+					console.log("ERROR (ajaxOptions) : " + ajaxOptions);
+				}
+
+				if (thrownError) {
+					console.log("ERROR (thrownError) : " + thrownError);
+				}
+
+			},
+		});
+
+
+
+//		console.log("<?= base_url() . 'edit-environment?id=' ?>" + folder);
+//		window.location.href ="<?= base_url() . 'edit-environment?id=' ?>" + folder;
+
+	}
 
     function deleteEnv (name, folder) {
 

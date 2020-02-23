@@ -503,6 +503,55 @@ class Environments extends MI_Controller {
 
     }
 
+	public function composerEnv()
+	{
+
+		$folder = null;
+		if (isset($_GET['folder']) && !empty($_GET['folder']) && isset($_GET['name']) && !empty($_GET['name'])) {
+			$folder = $_GET['folder'];
+			$name = $_GET['name'];
+
+			$tmpName = strtolower(str_replace(' ', '_', $name));
+
+			$containerName = $tmpName . "_php-" . $folder . "_1"; // Todo : BETTER WAY !!! (hardcode _php -> dirty -> get containerId when creating docker ?!)
+
+			$cmd = 'sudo docker exec ' . $containerName . ' bash -c \' COMPOSER_MEMORY_LIMIT=-1 composer install  \'';
+			$output = shell_exec($cmd);
+
+		}
+
+
+		echo json_encode(true); // Todo value !
+		//echo json_encode("okokokokok");
+
+/*		// Load models
+		$this->load->model('Environments_model');
+		$this->load->model('Mysqlversions_model');
+		$this->load->model('Phpversions_model');
+
+		$response = false;
+
+		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
+
+			$environment = $this->Environments_model->getEnvironmentByFolder($_GET['folder']);
+
+			// Generate docker compose
+			$this->generateProjectDockerFolder($environment);
+
+			// Start docker compose
+			$folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+			$dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
+			$this->startEnvironment($dockerComposePath);
+
+			$response = true;
+
+		}
+
+		echo json_encode($response);
+
+*/
+	}
+
     public function stopEnv()
     {
         $response = false;
