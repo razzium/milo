@@ -19,8 +19,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-create database if not exists `db_milo`;
-USE `db_milo`;
 
 # Affichage de la table ci_sessions
 # ------------------------------------------------------------
@@ -56,13 +54,14 @@ CREATE TABLE `environments` (
   `mysql_version_id` int(11) unsigned DEFAULT NULL,
   `mysql_port` bigint(20) DEFAULT NULL,
   `mysql_dockerfile` longtext DEFAULT NULL,
-  `mysql_user` text NOT NULL,
-  `mysql_password` text NOT NULL,
+  `mysql_user` text DEFAULT NULL,
+  `mysql_password` text DEFAULT NULL,
   `has_pma` tinyint(2) unsigned DEFAULT NULL,
   `pma_port` bigint(20) DEFAULT NULL,
   `has_sftp` tinyint(2) unsigned DEFAULT NULL,
-  `sftp_user` text NOT NULL,
-  `sftp_password` text NOT NULL,
+  `repository_git` text DEFAULT NULL,
+  `sftp_user` text DEFAULT NULL,
+  `sftp_password` text DEFAULT NULL,
   `sftp_port` bigint(20) DEFAULT NULL,
   `docker_compose` longtext DEFAULT NULL,
   `xDebug_remote_host` text DEFAULT NULL,
@@ -246,9 +245,9 @@ LOCK TABLES `php_versions` WRITE;
 
 INSERT INTO `php_versions` (`id`, `version`, `tag`, `env`, `is_active`)
 VALUES
-	(1,'7.1','php:7.1-apache','apache',1),
-	(2,'5.6','php:5.6-apache','apache',1);
-	(3,'7.3','php:7.3-apache','apache',1);
+  (1,'7.1','php:7.1-apache','apache',1),
+  (2,'5.6','php:5.6-apache','apache',1),
+  (3,'7.3','php:7.3-apache','apache',1);
 
 /*!40000 ALTER TABLE `php_versions` ENABLE KEYS */;
 UNLOCK TABLES;

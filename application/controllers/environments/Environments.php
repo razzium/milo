@@ -195,13 +195,58 @@ class Environments extends MI_Controller {
         // 5. Generate docker compose
         $isProjectDockerFolderCreated = $this->generateProjectDockerFolder($environment);
 
-        // 6. Add environment
+       // Steps 6/7
         if ($isProjectDockerFolderCreated) {
-            $environmentId = $this->Environments_model->insertEnvironment($environment);
+
+			// 6. Check git
+			if (isset($_POST['repositoryGit']) && !empty($_POST['repositoryGit'])) {
+
+				$repositoryGit = $_POST['repositoryGit'];
+
+				// 1a (optional). Check if repo has credentials (then add it in url)
+				if (isset($_POST['gitCredentialsUsername']) && !empty($_POST['gitCredentialsUsername'])) {
+
+					if (isset($_POST['gitCredentialsPass']) && !empty($_POST['gitCredentialsPass'])) {
+
+						$tagOne = "https://";
+						$tagTwo = "@";
+
+						$repositoryGit =  preg_replace('#('.preg_quote($tagOne).')(.*?)('.preg_quote($tagTwo).')#si', '$1'. $_POST['gitCredentialsUsername'] . ':' . $_POST['gitCredentialsPass'] .'$3', $repositoryGit);
+
+					}
+					else {
+						// todo error
+					}
+
+				}
+
+				try {
+
+					require(APPPATH . 'third_party/czproject/git-php/src/GitRepository.php');
+
+					$folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+
+					unlink(ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/src/index.php");
+					$dockerComposePath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/src";
+
+					$repo = Cz\Git\GitRepository::cloneRepository($repositoryGit, $dockerComposePath);
+
+				} catch (Exception $e) {
+					// todo error
+					//var_dump($e);
+				}
+
+
+				$environment->{Environments_model::repositoryGit} = $repositoryGit;
+
+			}
+
+			// 7. Add environment
+			$environmentId = $this->Environments_model->insertEnvironment($environment);
+
             if (isset($environmentId) && $environmentId != -1) {
 
                 // 7. Start docker compose
-
                 $folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
                 $dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
                 $this->startEnvironment($dockerComposePath);
@@ -217,6 +262,38 @@ class Environments extends MI_Controller {
             // Todo : proper error (display error flash ?!)
             exit('Error docker compose file !');
         }
+
+
+
+
+
+
+
+
+		/*
+		 *
+		 *
+ini_set('display_errors', 1);
+			ini_set('display_startup_errors', 1);
+			error_reporting(E_ALL);
+
+
+
+		//$repo = new Cz\Git\GitRepository('./r-d-clapp-anims');
+
+		//$repo->checkout('master');
+
+//var_dump($repo->getRepositoryPath());
+		//var_dump($repo->getCurrentBranchName());
+
+//foreach ($repo->getBranches() as $b) {
+//	echo $b . ' <br />';
+//}
+
+//$repo->checkout('feature/poc_masked_view');
+//$repo->pull('origin');
+
+        */
 
 
     }

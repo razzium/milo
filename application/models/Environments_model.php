@@ -31,6 +31,7 @@ class Environments_model extends CI_Model {
     const sftpPort = 'sftp_port';
     const dockerCompose = 'docker_compose';
     const xDebugRemoteHost = 'xDebug_remote_host';
+	const repositoryGit = 'repository_git';// Todo crypt
     const createdDate = 'created_date';
 
     const creator = 'creator';

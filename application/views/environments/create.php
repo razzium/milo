@@ -34,6 +34,7 @@ if (isset($environment) && !empty($environment)) {
                     <label><input id="webserverTrigger" name="webserverTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->webserver) && !empty($environment->webserver) ? 'checked' : '' ?>>Webserver</label>
                     <label><input id="phpTrigger" name="phpTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->php_version_id) && !empty($environment->php_version_id) ? 'checked' : '' ?>>Php</label>
                     <label><input id="mysqlTrigger" name="mysqlTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->mysql_version_id) && !empty($environment->mysql_version_id) ? 'checked' : '' ?>>MySQL / MariaDB</label>
+					<label><input id="repositoryGitTrigger" name="repositoryGitTrigger" type="checkbox" value="true" <?= isset($environment) && isset($environment->repository_git) && !empty($environment->repository_git) ? 'checked' : '' ?>>Repository Git</label>
                     <label><input id="sftp" name="sftp" type="checkbox" value="true" <?= isset($environment) && isset($environment->has_sftp) && !empty($environment->has_sftp) ? 'checked' : '' ?>>SFTP</label>
                     <label id="pmaLabel"><input id="pma" name="pma" type="checkbox" value="true" <?= isset($environment) && isset($environment->has_pma) && !empty($environment->has_pma) ? 'checked' : '' ?>>phpMyAdmin</label>
                     <!--					<label><input id="redis" name="redis" type="checkbox" value="true">Redis</label>-->
@@ -127,6 +128,25 @@ if (isset($environment) && !empty($environment)) {
             ?>
         </select>
     </div>
+	<div id="repositoryGitDiv" class="form-group">
+		<div class="form-group">
+			<label for="repositoryGit">Repository Git</label>
+			<input id="repositoryGit" class="form-control"  name="repositoryGit" type="text" >
+		</div>
+		<div id="repositoryGitOptionsDiv" class="form-group">
+			<div>
+				<span>Options</span>
+				<div class="checkbox">
+					<label><input id="gitCredentialsTrigger" name="gitCredentialsTrigger" type="checkbox" value="true"> Has authentication</label>
+
+					<div id="gitCredentialsDiv">
+						<span>Username</span><input id="gitCredentialsUsername" name="gitCredentialsUsername" type="text" class="form-control" >
+						<span>Password</span><input id="gitCredentialsPass" name="gitCredentialsPass" type="password" class="form-control" >
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
     <div id="mysqlDockerfileDiv" class="form-group">
         <label for="comment">Dockerfile MySQL / MariaDB</label>
         <textarea class="form-control" rows="5" id="mysqlDockerfile" name="mysqlDockerfile" readonly>
@@ -211,6 +231,12 @@ if (isset($environment) && !empty($environment)) {
                 $( "#mysqlDiv" ).hide();
             }
 
+			var hasRepositoryGit = "<?= isset($environment) && isset($environment->repository_git) && !empty($environment->repository_git) ? 'true' : 'false' ?>";
+			if (hasRepositoryGit) {
+				$( "#repositoryGitDiv" ).show();
+			} else {
+				$( "#repositoryGitDiv" ).hide();
+			}
 
             $( "#phpDockerfileDiv" ).hide();
             $( "#mysqlDockerfileDiv" ).hide();
@@ -223,7 +249,9 @@ if (isset($environment) && !empty($environment)) {
             $( "#phpDiv" ).hide();
             $( "#xDebugDiv" ).hide();
             $( "#xDebugRemoteHostDiv" ).hide();
+            $( "#gitCredentialsDiv" ).hide();
             $( "#mysqlDiv" ).hide();
+            $( "#repositoryGitDiv" ).hide();
             $( "#phpDockerfileDiv" ).hide();
             $( "#mysqlDockerfileDiv" ).hide();
 
@@ -248,6 +276,16 @@ if (isset($environment) && !empty($environment)) {
             }
 
         });
+
+		$('#gitCredentialsTrigger').on('change', function() {
+
+			if ($('#gitCredentialsTrigger').is(':checked')) {
+				$( "#gitCredentialsDiv" ).show();
+			} else {
+				$( "#gitCredentialsDiv" ).hide();
+			}
+
+		});
 
         $('#phpTrigger').on('change', function() {
 
@@ -288,6 +326,18 @@ if (isset($environment) && !empty($environment)) {
             }
 
         });
+
+		$('#repositoryGitTrigger').on('change', function() {
+
+			if ($('#repositoryGitTrigger').is(':checked')) {
+				$( "#repositoryGitDiv" ).show();
+
+			} else {
+				$( "#repositoryGitDiv" ).hide();
+				$( "#repositoryGitDiv" ).hide();
+			}
+
+		});
 
         $('#phpVersion').on('change', function() {
 
