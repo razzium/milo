@@ -62,6 +62,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::sftpPort,
             self::table . '.' . self::dockerCompose,
             self::table . '.' . self::xDebugRemoteHost,
+            self::table . '.' . self::repositoryGit,
             self::table . '.' . self::createdDate,
             'ion_auth_users.username AS ' . self::creator,
             'php_versions.version AS ' . self::phpVersionId,
@@ -102,6 +103,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::sftpPort,
             self::table . '.' . self::dockerCompose,
             self::table . '.' . self::xDebugRemoteHost,
+            self::table . '.' . self::repositoryGit,
             self::table . '.' . self::createdDate
         ];
 
@@ -141,6 +143,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::sftpPort,
             self::table . '.' . self::dockerCompose,
             self::table . '.' . self::xDebugRemoteHost,
+            self::table . '.' . self::repositoryGit,
             self::table . '.' . self::createdDate
         ];
 
@@ -176,6 +179,7 @@ class Environments_model extends CI_Model {
             self::table . '.' . self::sftpPort,
             self::table . '.' . self::dockerCompose,
             self::table . '.' . self::xDebugRemoteHost,
+            self::table . '.' . self::repositoryGit,
             self::table . '.' . self::createdDate,
             'ion_auth_users.username AS ' . self::creator,
             'php_versions.version AS ' . self::phpVersionId,

@@ -58,7 +58,9 @@
                         <th>STFP user</th>
                         <th>STFP pass</th>
                         <th>STFP port</th>
-                        <th>Action</th>
+                        <th>Environment actions</th>
+                        <th>Git actions</th>
+                        <th>Composer actions</th>
                     </tr>
                     </thead>
 
@@ -260,12 +262,46 @@
                         '<button onclick="stopEnv(\'' + data.name + '\')" class="btn btn-info" type="button"> Stop </button> &nbsp; ' +
                         '<button onclick="deleteEnv(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; ' +
                         '<button onclick="editEnv(\'' + data.folder + '\')" class="btn btn-primary" type="button"> Edit </button> &nbsp; ' +
-						'<button onclick="exportEnv(\'' + data.folder + '\')" class="btn btn-warning" type="button"> Export </button> &nbsp; ' +
-                        '<button onclick="composerEnv(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-info" type="button"> Composer </button> &nbsp; '
+						'<button onclick="exportEnv(\'' + data.folder + '\')" class="btn btn-warning" type="button"> Export </button> &nbsp; '
                     /*						return '<button class="btn btn-success" type="button"> View </button> &nbsp; ' +
                                                 '<button class="btn btn-info" type="button"> Stop </button> &nbsp; '	 +
                                                 '<button class="btn btn-danger" type="button"> Delete </button> &nbsp; '*/						}
-            }
+            },
+			/*				{
+								"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
+								"data": function (data) {
+									console.log(data);
+									return '<span class="status"> Php </span> &nbsp; ' +
+										'<button class="btn btn-info" type="button"> Stop </button> &nbsp; '	 +
+										'<button class="btn btn-danger" type="button"> Delete </button> &nbsp; '						}
+							},*/
+			{
+				"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
+				"data": function (data) {
+
+					if (data.repository_git !== undefined && data.repository_git !== null && data.repository_git !== "" && data.repository_git !== " ") {
+
+
+						return '<button onclick="gitPullMaster(\'' + data.name + '\', \'' + data.folder + '\')"  class="btn btn-danger" type="button"> Pull Master </button> &nbsp; '	 +
+							'<button onclick="gitPullDevelop(\'' + data.name + '\', \'' + data.folder + '\')"  class="btn btn-info" type="button"> Pull Develop </button> &nbsp; '
+
+
+					} else {
+						return "N/A"
+					}
+				}
+			},
+			{
+				"data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
+				"data": function (data) {
+					return '<button onclick="composerEnvInstall(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-info" type="button"> Install </button> &nbsp; '	 +
+					 '<button onclick="composerEnvInstallNoDev(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-info" type="button"> Install no-dev </button> &nbsp; '	 +
+					 '<button onclick="composerEnvInstallIgnoreReqs(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-info" type="button"> Install Ignore reqs </button> &nbsp; '	 +
+					 '<button onclick="composerEnvUpdate(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-success" type="button"> Update </button> &nbsp; '	 +
+					 '<button onclick="composerEnvDumpAutoload(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-danger" type="button"> Dump Autoload </button> &nbsp; '	 +
+					 '<button onclick="composerEnvDelete(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-danger" type="button"> Delete Vendor (+lock) </button> &nbsp; '
+				}
+			}
         ]
     });
 
@@ -495,7 +531,7 @@
 
     }
 
-	function composerEnv (name, folder) {
+	function gitPullMaster (name, folder) {
 
 		//Pace.restart();
 		$( "#loader" ).show();
@@ -506,7 +542,107 @@
 		};
 
 		$.ajax({
-			url: "<?php echo base_url('environments/environments/composerEnv'); ?>",
+			url: "<?php echo base_url('environments/environments/gitPullMaster'); ?>",
+			type: 'GET',
+			data: form_data,
+			dataType: 'json',
+			async : true,
+			success:function(response){
+				$( "#loader" ).hide();
+				alert(response)
+				if (response) {
+					alert("Composer install success !")
+				} else {
+					alert("Composer install failed !")
+				}
+			},
+			error:function (xhr, ajaxOptions, thrownError){
+
+				$( "#loader" ).hide();
+
+				alert("Composer install failed !")
+
+				console.log('Error : composerEnv ajax error !'); // Todo manage error !
+
+				if (xhr) {
+					console.log("ERROR (xhr) : " + xhr);
+				}
+
+				if (ajaxOptions) {
+					console.log("ERROR (ajaxOptions) : " + ajaxOptions);
+				}
+
+				if (thrownError) {
+					console.log("ERROR (thrownError) : " + thrownError);
+				}
+
+			},
+		});
+
+	}
+
+	function gitPullDevelop (name, folder) {
+
+		//Pace.restart();
+		$( "#loader" ).show();
+
+		var form_data = {
+			folder : folder,
+			name : name
+		};
+
+		$.ajax({
+			url: "<?php echo base_url('environments/environments/gitPullDevelop'); ?>",
+			type: 'GET',
+			data: form_data,
+			dataType: 'json',
+			async : true,
+			success:function(response){
+				$( "#loader" ).hide();
+				alert(response)
+				if (response) {
+					alert("Composer install success !")
+				} else {
+					alert("Composer install failed !")
+				}
+			},
+			error:function (xhr, ajaxOptions, thrownError){
+
+				$( "#loader" ).hide();
+
+				alert("Composer install failed !")
+
+				console.log('Error : composerEnv ajax error !'); // Todo manage error !
+
+				if (xhr) {
+					console.log("ERROR (xhr) : " + xhr);
+				}
+
+				if (ajaxOptions) {
+					console.log("ERROR (ajaxOptions) : " + ajaxOptions);
+				}
+
+				if (thrownError) {
+					console.log("ERROR (thrownError) : " + thrownError);
+				}
+
+			},
+		});
+
+	}
+
+	function composerEnvInstall (name, folder) {
+
+		//Pace.restart();
+		$( "#loader" ).show();
+
+		var form_data = {
+			folder : folder,
+			name : name
+		};
+
+		$.ajax({
+			url: "<?php echo base_url('environments/environments/composerEnvInstall'); ?>",
 			type: 'GET',
 			data: form_data,
 			dataType: 'json',
@@ -542,12 +678,211 @@
 			},
 		});
 
+	}
 
+	function composerEnvInstallNoDev (name, folder) {
 
-//		console.log("<?= base_url() . 'edit-environment?id=' ?>" + folder);
-//		window.location.href ="<?= base_url() . 'edit-environment?id=' ?>" + folder;
+		//Pace.restart();
+		$( "#loader" ).show();
+
+		var form_data = {
+			folder : folder,
+			name : name
+		};
+
+		$.ajax({
+			url: "<?php echo base_url('environments/environments/composerEnvInstallNoDev'); ?>",
+			type: 'GET',
+			data: form_data,
+			dataType: 'json',
+			async : true,
+			success:function(response){
+				$( "#loader" ).hide();
+				if (response) {
+					alert("Composer install no dev success !")
+				} else {
+					alert("Composer install no dev failed !")
+				}
+			},
+			error:function (xhr, ajaxOptions, thrownError){
+
+				$( "#loader" ).hide();
+
+				alert("Composer install no dev failed !")
+
+				console.log('Error : composerEnv ajax error !'); // Todo manage error !
+
+				if (xhr) {
+					console.log("ERROR (xhr) : " + xhr);
+				}
+
+				if (ajaxOptions) {
+					console.log("ERROR (ajaxOptions) : " + ajaxOptions);
+				}
+
+				if (thrownError) {
+					console.log("ERROR (thrownError) : " + thrownError);
+				}
+
+			},
+		});
 
 	}
+
+	function composerEnvInstallIgnoreReqs (name, folder) {
+
+		//Pace.restart();
+		$( "#loader" ).show();
+
+		var form_data = {
+			folder : folder,
+			name : name
+		};
+
+		$.ajax({
+			url: "<?php echo base_url('environments/environments/composerEnvInstallIgnoreReqs'); ?>",
+			type: 'GET',
+			data: form_data,
+			dataType: 'json',
+			async : true,
+			success:function(response){
+				$( "#loader" ).hide();
+				if (response) {
+					alert("Composer install ignore reqs success !")
+				} else {
+					alert("Composer install ignore reqs failed !")
+				}
+			},
+			error:function (xhr, ajaxOptions, thrownError){
+
+				$( "#loader" ).hide();
+
+				alert("Composer install ignore reqs failed !")
+
+				console.log('Error : composerEnv ajax error !'); // Todo manage error !
+
+				if (xhr) {
+					console.log("ERROR (xhr) : " + xhr);
+				}
+
+				if (ajaxOptions) {
+					console.log("ERROR (ajaxOptions) : " + ajaxOptions);
+				}
+
+				if (thrownError) {
+					console.log("ERROR (thrownError) : " + thrownError);
+				}
+
+			},
+		});
+
+	}
+
+	function composerEnvUpdate (name, folder) {
+
+		//Pace.restart();
+		$( "#loader" ).show();
+
+		var form_data = {
+			folder : folder,
+			name : name
+		};
+
+		$.ajax({
+			url: "<?php echo base_url('environments/environments/composerEnvUpdate'); ?>",
+			type: 'GET',
+			data: form_data,
+			dataType: 'json',
+			async : true,
+			success:function(response){
+				$( "#loader" ).hide();
+				if (response) {
+					alert("Composer update success !")
+				} else {
+					alert("Composer update failed !")
+				}
+			},
+			error:function (xhr, ajaxOptions, thrownError){
+
+				$( "#loader" ).hide();
+
+				alert("Composer install failed !")
+
+				console.log('Error : composerEnv ajax error !'); // Todo manage error !
+
+				if (xhr) {
+					console.log("ERROR (xhr) : " + xhr);
+				}
+
+				if (ajaxOptions) {
+					console.log("ERROR (ajaxOptions) : " + ajaxOptions);
+				}
+
+				if (thrownError) {
+					console.log("ERROR (thrownError) : " + thrownError);
+				}
+
+			},
+		});
+
+	}
+
+
+	function composerEnvDumpAutoload (name, folder) {
+
+		//Pace.restart();
+		$( "#loader" ).show();
+
+		var form_data = {
+			folder : folder,
+			name : name
+		};
+
+		$.ajax({
+			url: "<?php echo base_url('environments/environments/composerEnvDumpAutoload'); ?>",
+			type: 'GET',
+			data: form_data,
+			dataType: 'json',
+			async : true,
+			success:function(response){
+				$( "#loader" ).hide();
+				if (response) {
+					alert("Composer dump autoload success !")
+				} else {
+					alert("Composer dump autoload failed !")
+				}
+			},
+			error:function (xhr, ajaxOptions, thrownError){
+
+				$( "#loader" ).hide();
+
+				alert("Composer install dump autoload !")
+
+				console.log('Error : composerEnv ajax error !'); // Todo manage error !
+
+				if (xhr) {
+					console.log("ERROR (xhr) : " + xhr);
+				}
+
+				if (ajaxOptions) {
+					console.log("ERROR (ajaxOptions) : " + ajaxOptions);
+				}
+
+				if (thrownError) {
+					console.log("ERROR (thrownError) : " + thrownError);
+				}
+
+			},
+		});
+
+	}
+
+	function composerEnvDelete (name, folder) {
+
+		alert('Coming soon...');
+
+	}
+
 
     function deleteEnv (name, folder) {
 

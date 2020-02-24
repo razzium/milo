@@ -263,39 +263,6 @@ class Environments extends MI_Controller {
             exit('Error docker compose file !');
         }
 
-
-
-
-
-
-
-
-		/*
-		 *
-		 *
-ini_set('display_errors', 1);
-			ini_set('display_startup_errors', 1);
-			error_reporting(E_ALL);
-
-
-
-		//$repo = new Cz\Git\GitRepository('./r-d-clapp-anims');
-
-		//$repo->checkout('master');
-
-//var_dump($repo->getRepositoryPath());
-		//var_dump($repo->getCurrentBranchName());
-
-//foreach ($repo->getBranches() as $b) {
-//	echo $b . ' <br />';
-//}
-
-//$repo->checkout('feature/poc_masked_view');
-//$repo->pull('origin');
-
-        */
-
-
     }
 
 //    public function formEnvironment()
@@ -580,11 +547,79 @@ ini_set('display_errors', 1);
 
     }
 
-	public function composerEnv()
+	public function gitPullMaster()
+	{
+
+		$folder = null;
+		$name = null;
+		if (isset($_GET['folder']) && !empty($_GET['folder']) && isset($_GET['name']) && !empty($_GET['name'])) {
+
+			$folder = $_GET['folder'];
+			$name = $_GET['name'];
+
+			$folderName = strtolower(str_replace(' ', '_', trim($name)));
+
+			$gitPath = INNER_ENVS_FOLDER . "/" . $folderName . "/src";
+
+			try {
+
+				require(APPPATH . 'third_party/czproject/git-php/src/GitRepository.php');
+
+				$repo = new Cz\Git\GitRepository($gitPath);
+				$repo->checkout('master');
+
+			} catch (Exception $e) {
+				// todo error
+				//var_dump($e);
+			}
+
+
+
+
+		}
+
+
+		echo json_encode(true); // Todo value !
+
+
+		/*
+		 *
+		 *
+ini_set('display_errors', 1);
+			ini_set('display_startup_errors', 1);
+			error_reporting(E_ALL);
+
+
+
+		//$repo = new Cz\Git\GitRepository('./r-d-clapp-anims');
+
+		//$repo->checkout('master');
+
+//var_dump($repo->getRepositoryPath());
+		//var_dump($repo->getCurrentBranchName());
+
+//foreach ($repo->getBranches() as $b) {
+//	echo $b . ' <br />';
+//}
+
+//$repo->checkout('feature/poc_masked_view');
+//$repo->pull('origin');
+
+        */
+
+	}
+
+	public function gitPullDevelop()
+	{
+		echo json_encode("gitPullDevelop"); // Todo value !
+	}
+
+	public function composerEnvInstall()
 	{
 
 		$folder = null;
 		if (isset($_GET['folder']) && !empty($_GET['folder']) && isset($_GET['name']) && !empty($_GET['name'])) {
+
 			$folder = $_GET['folder'];
 			$name = $_GET['name'];
 
@@ -599,34 +634,99 @@ ini_set('display_errors', 1);
 
 
 		echo json_encode(true); // Todo value !
-		//echo json_encode("okokokokok");
 
-/*		// Load models
-		$this->load->model('Environments_model');
-		$this->load->model('Mysqlversions_model');
-		$this->load->model('Phpversions_model');
+	}
 
-		$response = false;
+	public function composerEnvInstallNoDev()
+	{
 
-		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
+		$folder = null;
+		if (isset($_GET['folder']) && !empty($_GET['folder']) && isset($_GET['name']) && !empty($_GET['name'])) {
 
-			$environment = $this->Environments_model->getEnvironmentByFolder($_GET['folder']);
+			$folder = $_GET['folder'];
+			$name = $_GET['name'];
 
-			// Generate docker compose
-			$this->generateProjectDockerFolder($environment);
+			$tmpName = strtolower(str_replace(' ', '_', $name));
 
-			// Start docker compose
-			$folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
-			$dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
-			$this->startEnvironment($dockerComposePath);
+			$containerName = $tmpName . "_php-" . $folder . "_1"; // Todo : BETTER WAY !!! (hardcode _php -> dirty -> get containerId when creating docker ?!)
 
-			$response = true;
+			$cmd = 'sudo docker exec ' . $containerName . ' bash -c \' COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev \'';
+			$output = shell_exec($cmd);
 
 		}
 
-		echo json_encode($response);
 
-*/
+		echo json_encode(true); // Todo value !
+
+	}
+
+	public function composerEnvInstallIgnoreReqs()
+	{
+
+		$folder = null;
+		if (isset($_GET['folder']) && !empty($_GET['folder']) && isset($_GET['name']) && !empty($_GET['name'])) {
+
+			$folder = $_GET['folder'];
+			$name = $_GET['name'];
+
+			$tmpName = strtolower(str_replace(' ', '_', $name));
+
+			$containerName = $tmpName . "_php-" . $folder . "_1"; // Todo : BETTER WAY !!! (hardcode _php -> dirty -> get containerId when creating docker ?!)
+
+			$cmd = 'sudo docker exec ' . $containerName . ' bash -c \' COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs  \'';
+			$output = shell_exec($cmd);
+
+		}
+
+
+		echo json_encode(true); // Todo value !
+
+	}
+
+	public function composerEnvUpdate()
+	{
+
+		$folder = null;
+		if (isset($_GET['folder']) && !empty($_GET['folder']) && isset($_GET['name']) && !empty($_GET['name'])) {
+
+			$folder = $_GET['folder'];
+			$name = $_GET['name'];
+
+			$tmpName = strtolower(str_replace(' ', '_', $name));
+
+			$containerName = $tmpName . "_php-" . $folder . "_1"; // Todo : BETTER WAY !!! (hardcode _php -> dirty -> get containerId when creating docker ?!)
+
+			$cmd = 'sudo docker exec ' . $containerName . ' bash -c \' COMPOSER_MEMORY_LIMIT=-1 composer update  \'';
+			$output = shell_exec($cmd);
+
+		}
+
+
+		echo json_encode(true); // Todo value !
+
+	}
+
+	public function composerEnvDumpAutoload()
+	{
+
+		$folder = null;
+		if (isset($_GET['folder']) && !empty($_GET['folder']) && isset($_GET['name']) && !empty($_GET['name'])) {
+
+			$folder = $_GET['folder'];
+			$name = $_GET['name'];
+
+			$tmpName = strtolower(str_replace(' ', '_', $name));
+
+			$containerName = $tmpName . "_php-" . $folder . "_1"; // Todo : BETTER WAY !!! (hardcode _php -> dirty -> get containerId when creating docker ?!)
+
+			$cmd = 'sudo docker exec ' . $containerName . ' bash -c \' COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload  \'';
+			$output = shell_exec($cmd);
+
+		}
+
+
+		echo json_encode(true); // Todo value !
+
 	}
 
     public function stopEnv()
