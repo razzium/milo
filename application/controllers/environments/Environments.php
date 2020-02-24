@@ -552,6 +552,9 @@ class Environments extends MI_Controller {
 
 		$folder = null;
 		$name = null;
+
+		$success = false;
+
 		if (isset($_GET['folder']) && !empty($_GET['folder']) && isset($_GET['name']) && !empty($_GET['name'])) {
 
 			$folder = $_GET['folder'];
@@ -559,7 +562,7 @@ class Environments extends MI_Controller {
 
 			$folderName = strtolower(str_replace(' ', '_', trim($name)));
 
-			$gitPath = INNER_ENVS_FOLDER . "/" . $folderName . "/src";
+			$gitPath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/src";
 
 			try {
 
@@ -567,51 +570,59 @@ class Environments extends MI_Controller {
 
 				$repo = new Cz\Git\GitRepository($gitPath);
 				$repo->checkout('master');
+				$repo->pull('origin');
+
+				$success = true;
 
 			} catch (Exception $e) {
 				// todo error
 				//var_dump($e);
 			}
 
-
-
-
 		}
 
 
-		echo json_encode(true); // Todo value !
-
-
-		/*
-		 *
-		 *
-ini_set('display_errors', 1);
-			ini_set('display_startup_errors', 1);
-			error_reporting(E_ALL);
-
-
-
-		//$repo = new Cz\Git\GitRepository('./r-d-clapp-anims');
-
-		//$repo->checkout('master');
-
-//var_dump($repo->getRepositoryPath());
-		//var_dump($repo->getCurrentBranchName());
-
-//foreach ($repo->getBranches() as $b) {
-//	echo $b . ' <br />';
-//}
-
-//$repo->checkout('feature/poc_masked_view');
-//$repo->pull('origin');
-
-        */
+		echo json_encode(true);
 
 	}
 
 	public function gitPullDevelop()
 	{
-		echo json_encode("gitPullDevelop"); // Todo value !
+
+		$folder = null;
+		$name = null;
+
+		$success = false;
+
+		if (isset($_GET['folder']) && !empty($_GET['folder']) && isset($_GET['name']) && !empty($_GET['name'])) {
+
+			$folder = $_GET['folder'];
+			$name = $_GET['name'];
+
+			$folderName = strtolower(str_replace(' ', '_', trim($name)));
+
+			$gitPath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/src";
+
+			try {
+
+				require(APPPATH . 'third_party/czproject/git-php/src/GitRepository.php');
+
+				$repo = new Cz\Git\GitRepository($gitPath);
+				$repo->checkout('develop');
+				$repo->pull('origin');
+
+				$success = true;
+
+			} catch (Exception $e) {
+				// todo error
+				//var_dump($e);
+			}
+
+		}
+
+
+		echo json_encode(true);
+
 	}
 
 	public function composerEnvInstall()

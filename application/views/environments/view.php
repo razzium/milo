@@ -549,18 +549,17 @@
 			async : true,
 			success:function(response){
 				$( "#loader" ).hide();
-				alert(response)
 				if (response) {
-					alert("Composer install success !")
+					alert("Git Pull master success !")
 				} else {
-					alert("Composer install failed !")
+					alert("Git Pull master failed !")
 				}
 			},
 			error:function (xhr, ajaxOptions, thrownError){
 
 				$( "#loader" ).hide();
 
-				alert("Composer install failed !")
+				alert("Git Pull master failed !")
 
 				console.log('Error : composerEnv ajax error !'); // Todo manage error !
 
@@ -599,18 +598,17 @@
 			async : true,
 			success:function(response){
 				$( "#loader" ).hide();
-				alert(response)
 				if (response) {
-					alert("Composer install success !")
+					alert("Git Pull develop success !")
 				} else {
-					alert("Composer install failed !")
+					alert("Git Pull develop failed !")
 				}
 			},
 			error:function (xhr, ajaxOptions, thrownError){
 
 				$( "#loader" ).hide();
 
-				alert("Composer install failed !")
+				alert("Git Pull develop failed !")
 
 				console.log('Error : composerEnv ajax error !'); // Todo manage error !
 
