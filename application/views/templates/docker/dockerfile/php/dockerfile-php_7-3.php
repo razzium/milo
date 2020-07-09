@@ -18,6 +18,12 @@ RUN apt-get update && apt-get install -y libmcrypt-dev \
 && pecl install mcrypt-1.0.2 \
 && docker-php-ext-enable mcrypt
 
+# Install grpc
+RUN apt-get update
+RUN apt-get -y --no-install-recommends install g++ zlib1g-dev
+RUN pecl install grpc
+RUN docker-php-ext-enable grpc
+
 # Install libs
 RUN apt-get update && apt-get install -y libzip-dev libxml2 libxml2-dev git zlib1g-dev libmcrypt-dev
 RUN docker-php-ext-install mysqli pdo pdo_mysql soap mbstring zip
