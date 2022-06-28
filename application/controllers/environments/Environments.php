@@ -517,6 +517,33 @@ class Environments extends MI_Controller {
 
     }
 
+	public function startEnvWithLogs()
+	{
+		// Load models
+		$this->load->model('Environments_model');
+		$this->load->model('Mysqlversions_model');
+		$this->load->model('Phpversions_model');
+
+		$response = false;
+
+		if (isset($_GET['folder']) && !empty($_GET['folder'])) {
+
+			$environment = $this->Environments_model->getEnvironmentByFolder($_GET['folder']);
+
+			// Generate docker compose
+			$this->generateProjectDockerFolder($environment);
+
+			// Start docker compose
+			$folderName = strtolower(str_replace(' ', '_', trim($environment->{Environments_model::name})));
+			$dockerComposePath = INNER_ENVS_FOLDER . "/" . $folderName . "/";
+			$this->startEnvironmentWithLogs($dockerComposePath, $environment->php_port);
+
+
+		}
+
+
+	}
+
     public function startEnv()
     {
 
@@ -1322,10 +1349,66 @@ class Environments extends MI_Controller {
 
     }
 
-    private function startEnvironment($dockerComposePath)
-    {
-        // shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build --force-recreate\' 2>&1');
+	private function startEnvironment($dockerComposePath)
+	{
+		// shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build --force-recreate\' 2>&1');
 		shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build --force-recreate\'');
+	}
+
+
+	private function startEnvironmentWithLogs($dockerComposePath, $php_port)
+    {
+
+		echo "<h1> LOGS </h1>";
+
+		flush(); //ie working must
+		//$file = 'techjourney.txt';
+
+		$cmd = 'sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build --force-recreate\' 2>&1';
+//		$cmdResult = shell_exec($cmd);
+//		echo nl2br($cmdResult);
+
+
+		if( ($fp = popen($cmd, "r")) ) {
+			while( !feof($fp) ){
+				echo nl2br(fread($fp, 1024));
+				echo "<br/>";
+				flush(); //ie working must
+				//file_put_contents($file,  PHP_EOL . fread($fp, 1024), FILE_APPEND);
+			}
+			fclose($fp);
+		}
+
+
+		echo "<br/>";
+		echo "<br/>";
+		echo "<br/>";
+
+		echo '<input 
+				onclick="redirectEnvironments()"
+       			type="button"
+       			value="Back to environments">';
+
+		echo '<script type="text/javascript">
+				function redirectEnvironments () {
+					window.location.replace("' . base_url('environments')  .  '");
+				}
+			</script>';
+
+		echo "<br/>";
+		echo "<br/>";
+
+		echo '<input
+				onclick="redirectIndex()"
+       			type="button"
+       			value="Go to index.php (phpinfo())">';
+
+		echo '<script type="text/javascript">
+				function redirectIndex () {
+					window.open("http://localhost:' . $php_port  .  '", "_blank");
+				}
+			</script>';
+
     }
 
     private function stopEnvironment($dockerComposePath)

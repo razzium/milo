@@ -259,6 +259,7 @@
                 "data": "Inquiry", "bSearchable": false, "bSortable": false, "sWidth": "40px",
                 "data": function (data) {
                     return '<button onclick="startEnv(\'' + data.folder + '\')" class="btn btn-success" type="button"> Start </button> &nbsp; '	 +
+                        '<button onclick="startEnvWithLogs(\'' + data.folder + '\')" class="btn btn-success" type="button"> Start With Logs </button> &nbsp; ' +
                         '<button onclick="stopEnv(\'' + data.name + '\')" class="btn btn-info" type="button"> Stop </button> &nbsp; ' +
                         '<button onclick="deleteEnv(\'' + data.name + '\', \'' + data.folder + '\')" class="btn btn-danger" type="button"> Delete </button> &nbsp; ' +
                         '<button onclick="editEnv(\'' + data.folder + '\')" class="btn btn-primary" type="button"> Edit </button> &nbsp; ' +
@@ -423,6 +424,10 @@
         }
 
     }
+
+	function startEnvWithLogs (folder) {
+		window.location.replace( "<?php echo base_url('environments/environments/startEnvWithLogs?folder='); ?>" + folder);
+	}
 
     function startEnv (folder) {
 
