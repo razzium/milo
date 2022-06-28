@@ -153,7 +153,7 @@ class Environments extends MI_Controller {
         $environment->{Environments_model::name} = (isset($_POST['name']) && !empty($_POST['name'])) ? trim($_POST['name']) : $phpUniqueId;
         // Set webserver
         // Todo : $_POST['webserverTrigger']
-        $environment->{Environments_model::webserver} = (isset($_POST['webserver']) && !empty($_POST['webserver'])) ? mb_strtolower($_POST['webserver']) : null ;
+
 
         // Set php
         $environment->{Environments_model::phpVersionId} = (isset($_POST['phpTrigger']) && !empty($_POST['phpTrigger']) && isset($_POST['phpVersion']) && !empty($_POST['phpVersion']) && $_POST['phpVersion'] != "--" && $_POST['phpVersion'] != "custom") ? $_POST['phpVersion'] : null;
@@ -162,6 +162,12 @@ class Environments extends MI_Controller {
             $environment->{Environments_model::phpSSLPort} = (isset($_POST['phpSSLPort']) && !empty($_POST['phpSSLPort'])) ? /*$this->TODOchekAvailablePort($_POST['phpSSLPort'])*/ $_POST['phpSSLPort'] : $this->getAvailablePort();// Todo
             // Todo : $environment->{Environments_model::phpDockerfile} = (isset($_POST['phpDockerfile']) && !empty($_POST['phpDockerfile'])) ? $_POST['phpDockerfile'] : null;
         }
+
+		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
+			$environment->{Environments_model::webserver} = "nginx";
+		} else {
+			$environment->{Environments_model::webserver} = "apache";
+		}
 
         // Set mysql
         $environment->{Environments_model::mysqlVersionId} = (isset($_POST['mysqlTrigger']) && !empty($_POST['mysqlTrigger']) && isset($_POST['mysqlVersion']) && !empty($_POST['mysqlVersion'])  && $_POST['mysqlVersion'] != "--" && $_POST['mysqlVersion'] != "custom") ? $_POST['mysqlVersion'] : null;
