@@ -1214,7 +1214,7 @@ class Environments extends MI_Controller {
 
                 // Create image/php dockerfile
 				if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
-					$filePath = "templates/docker/dockerfile/php/dockerfile-php_7-3-FPM.php";
+					$filePath = "templates/docker/dockerfile/php/dockerfile-php_7-3-fpm.php";
 				}
 				else if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 2) {// Todo for php 7.3 (different Dockerfile) -> dirty
 					$filePath = "templates/docker/dockerfile/php/dockerfile-php_7-3.php";
