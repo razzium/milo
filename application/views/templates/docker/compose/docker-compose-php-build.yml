@@ -12,3 +12,5 @@
     volumes:
       - "./src:/var/www/html"
       - "./logs/apache:/var/log/apache2"
+    networks:
+      - app-network-ci4-{project}

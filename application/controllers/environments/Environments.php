@@ -1270,11 +1270,15 @@ class Environments extends MI_Controller {
         }
 
 		// Add Network  (if needed)
-		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
-			$filePath = "templates/docker/compose/docker-compose-services-footer-v3.yml";
-			$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::pmaPort});
-			$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
-		}
+//		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
+//			$filePath = "templates/docker/compose/docker-compose-services-footer-v3.yml";
+//			$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::pmaPort});
+//			$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
+//		}
+
+		$filePath = "templates/docker/compose/docker-compose-services-footer-v3.yml";
+		$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::pmaPort});
+		$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
         // Volumes
         // Add MySQL volumes (if needed)
@@ -1368,6 +1372,7 @@ class Environments extends MI_Controller {
 		echo "<h1> LOGS </h1>";
 
 		flush(); //ie working must
+		sleep(1);
 		//$file = 'techjourney.txt';
 
 		$cmd = 'sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build --force-recreate\' 2>&1';
@@ -1379,7 +1384,8 @@ class Environments extends MI_Controller {
 			while( !feof($fp) ){
 				echo nl2br(fread($fp, 1024));
 				echo "<br/>";
-				flush(); //ie working must
+				flush();
+				sleep(1);//ie working must
 				//file_put_contents($file,  PHP_EOL . fread($fp, 1024), FILE_APPEND);
 			}
 			fclose($fp);
