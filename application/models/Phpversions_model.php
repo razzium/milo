@@ -27,7 +27,7 @@ class Phpversions_model extends CI_Model {
 
         $this->db->select("*")
             ->from(self::table)
-            ->order_by(self::version, 'ASC')
+            //->order_by(self::version, 'ASC')
             ->where(self::isActive, '1');
 
         return $this->db->get()->result();

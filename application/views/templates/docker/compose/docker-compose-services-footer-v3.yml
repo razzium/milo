@@ -1,0 +1,5 @@
+
+#Docker Networks
+networks:
+  app-network-ci4-{project}:
+    driver: bridge

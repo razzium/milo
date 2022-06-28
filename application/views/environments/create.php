@@ -48,13 +48,13 @@ if (isset($environment) && !empty($environment)) {
                 <label for="name">Name</label>
                 <input id="name" name="name" type="text" value="<?= isset($environment) && isset($environment->name) && !empty($environment->name) ? $environment->name : '' ?>" class="form-control" required <?= $isEdit ? 'readonly' : '' ?>>
             </div>
-            <div id="webserverDiv" class="form-group">
-                <label for="webserver">Webserver</label>
-                <select class="form-control" id="webserver" name="webserver" required <?= $isEdit ? 'disabled' : '' ?>>
-                    <option value="apache">Apache</option>
-                    <!--<option value="nginx">NGINX</option>-->Todo
-                </select>
-            </div>
+<!--            <div id="webserverDiv" class="form-group">-->
+<!--                <label for="webserver">Webserver</label>-->
+<!--                <select class="form-control" id="webserver" name="webserver" required --><?//= $isEdit ? 'disabled' : '' ?><!---->
+<!--                    <option value="apache">Apache</option>-->
+<!--                    <option value="apache">Nginx</option>-->
+<!--                </select>-->
+<!--            </div>-->
             <div id="phpDiv" class="form-group">
                 <label for="phpVersion">Php version</label>
                 <select class="form-control" id="phpVersion" name="phpVersion" required <?= $isEdit ? 'disabled' : '' ?>>

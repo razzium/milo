@@ -1061,7 +1061,12 @@ class Environments extends MI_Controller {
         $dockerCompose = "";
 
         // Add compose header
-        $filePath = "templates/docker/compose/docker-compose-services-header.yml";
+		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
+			$filePath = "templates/docker/compose/docker-compose-services-header-v3.yml";
+		} else {
+			$filePath = "templates/docker/compose/docker-compose-services-header.yml";
+		}
+
         $data = array();
         $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
 
@@ -1136,9 +1141,19 @@ class Environments extends MI_Controller {
 
                 // Check if env has MySQL (to link php or not)
                 if (isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId}) && $environment->{Environments_model::mysqlVersionId} != "--") {
-                    $filePath = "templates/docker/compose/docker-compose-php-build.yml";
+
+					if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
+						$filePath = "templates/docker/compose/docker-compose-php-build-FPM.yml";
+					} else {
+						$filePath = "templates/docker/compose/docker-compose-php-build.yml";
+					}
+
                 } else {
-                    $filePath = "templates/docker/compose/docker-compose-php-build-without-db.yml";
+					if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
+						$filePath = "templates/docker/compose/docker-compose-php-build-without-db-FPM.yml";
+					} else {
+						$filePath = "templates/docker/compose/docker-compose-php-build-without-db.yml";
+					}
                 }
                 $data['localPath'] = $localPath;
                 $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
@@ -1147,11 +1162,15 @@ class Environments extends MI_Controller {
                 $data['xDebug_remote_host'] = $environment->{Environments_model::xDebugRemoteHost};
 
                 // Create image/php dockerfile
-				if ($environment->{Environments_model::phpVersionId} == 3) {// Todo for php 7.3 (different Dockerfile) -> dirty
+				if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
+					$filePath = "templates/docker/dockerfile/php/dockerfile-php_7-3-FPM.php";
+				}
+				else if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 2) {// Todo for php 7.3 (different Dockerfile) -> dirty
 					$filePath = "templates/docker/dockerfile/php/dockerfile-php_7-3.php";
 				} else {
 					$filePath = "templates/docker/dockerfile/php/dockerfile-php.php";
 				}
+
                 $dockerfile = $this->parser->parse($filePath, $data, TRUE);
                 $environment->{Environments_model::phpDockerfile} = $dockerfile;
 
@@ -1199,6 +1218,13 @@ class Environments extends MI_Controller {
             $dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
         }
 
+		// Add Network  (if needed)
+		if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
+			$filePath = "templates/docker/compose/docker-compose-services-footer-v3.yml";
+			$data = array('project' => $environment->{Environments_model::folder}, 'port' => $environment->{Environments_model::pmaPort});
+			$dockerCompose .= $this->parser->parse($filePath, $data, TRUE);
+		}
+
         // Volumes
         // Add MySQL volumes (if needed)
         if ((isset($environment->{Environments_model::mysqlVersionId}) && !empty($environment->{Environments_model::mysqlVersionId})) || (isset($environment->{Environments_model::mysqlDockerfile}) && !empty($environment->{Environments_model::mysqlDockerfile}))) {
@@ -1241,10 +1267,24 @@ class Environments extends MI_Controller {
 
                 shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName. '; cd docker; mkdir image; chmod -R 777 image; cd image; mkdir php; chmod -R 777 php;');
 
-
                 // Todo php dockerfile
                 $dockerfilePhpPath = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/docker/image/php/";
                 file_put_contents($dockerfilePhpPath . "Dockerfile", $environment->{Environments_model::phpDockerfile});
+
+
+				if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
+
+
+					$nginxFileConf = "templates/docker/nginx/app.conf";
+					$dataNginxFileConf = array('project' => $environment->{Environments_model::folder});
+
+					$dockerComposeNginxFileConf = $this->parser->parse($nginxFileConf, $dataNginxFileConf, TRUE);
+
+					shell_exec('cd ' . ABSOLUTE_ENVS_FOLDER . '; cd ' . $folderName. '; cd docker; mkdir nginx; chmod -R 777 nginx; cd nginx; mkdir conf.d; chmod -R 777 conf.d;');
+					$dockerfilePhpPath1 = ABSOLUTE_ENVS_FOLDER . "/" . $folderName . "/docker/nginx/conf.d/";
+					file_put_contents($dockerfilePhpPath1 . "app.conf", $dockerComposeNginxFileConf);
+
+				}
 
             }
 
@@ -1266,7 +1306,9 @@ class Environments extends MI_Controller {
 
     private function startEnvironment($dockerComposePath)
     {
-        shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build\'');
+        $aaa = shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build --force-recreate\' 2>&1');
+       // $aaa = shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build\'');
+        $bbb = $aaa;
         //shell_exec('docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build\'');
     }
 
