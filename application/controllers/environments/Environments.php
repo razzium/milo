@@ -855,6 +855,7 @@ class Environments extends MI_Controller {
 
                 // Check MySQL
                 $mySqlContainer = $envName . "_mysql-" . $envId . "_1";
+				$mySqlContainer = str_replace(".", "", $mySqlContainer);
                 $cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $mySqlContainer. ';';
                 //$cmd = 'docker inspect -f "{{.State.Running}}" ' . $mySqlContainer. ';';
                 $mySqlContainerStatus = shell_exec($cmd);
@@ -870,11 +871,26 @@ class Environments extends MI_Controller {
             // Check if env has PHP (todo one day : webserver)
             if ($generalStatus && isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId})) {
 
-                // Check php
-                $phpContainer = $envName . "_php-" . $envId . "_1";
-                $cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
-                //$cmd = 'docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
-                $phpContainerStatus = shell_exec($cmd);
+
+				if (isset($environment->{Environments_model::phpVersionId}) && !empty($environment->{Environments_model::phpVersionId}) && $environment->{Environments_model::phpVersionId} == 1) {
+
+					// Check php
+					$phpContainer = "ci4-nginx-" . $envId ;
+					$phpContainer = str_replace(".", "", $phpContainer);
+					$cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
+					//$cmd = 'docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
+					$phpContainerStatus = shell_exec($cmd);
+
+				} else {
+
+					// Check php
+					$phpContainer = $envName . "_php-" . $envId . "_1";
+					$phpContainer = str_replace(".", "", $phpContainer);
+					$cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
+					//$cmd = 'docker inspect -f "{{.State.Running}}" ' . $phpContainer. ';';
+					$phpContainerStatus = shell_exec($cmd);
+
+				}
 
                 if (isset($phpContainerStatus) && !empty($phpContainerStatus) && strpos($phpContainerStatus, 'true') !== false) {
                     $generalStatus = true;
@@ -888,6 +904,7 @@ class Environments extends MI_Controller {
 
                 // Check PMA
                 $sftpContainer = $envName . "_sftp-" . $envId . "_1";
+				$sftpContainer = str_replace(".", "", $sftpContainer);
                 $cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $sftpContainer. ';';
                 //$cmd = 'docker inspect -f "{{.State.Running}}" ' . $sftpContainer. ';';
                 $sftpContainerStatus = shell_exec($cmd);
@@ -904,6 +921,7 @@ class Environments extends MI_Controller {
 
                 // Check PMA
                 $pmaContainer = $envName . "_phpmyadmin-" . $envId . "_1";
+				$pmaContainer = str_replace(".", "", $pmaContainer);
                 $cmd = 'sudo docker inspect -f "{{.State.Running}}" ' . $pmaContainer. ';';
                 //$cmd = 'docker inspect -f "{{.State.Running}}" ' . $pmaContainer. ';';
                 $pmaContainerStatus = shell_exec($cmd);
@@ -1306,10 +1324,8 @@ class Environments extends MI_Controller {
 
     private function startEnvironment($dockerComposePath)
     {
-        $aaa = shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build --force-recreate\' 2>&1');
-       // $aaa = shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build\'');
-        $bbb = $aaa;
-        //shell_exec('docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build\'');
+        // shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build --force-recreate\' 2>&1');
+		shell_exec('sudo docker exec docker-dood-milo bash -c \'cd ' . $dockerComposePath . ';docker-compose up -d --build --force-recreate\'');
     }
 
     private function stopEnvironment($dockerComposePath)
