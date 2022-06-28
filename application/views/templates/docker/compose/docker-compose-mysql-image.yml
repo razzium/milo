@@ -8,3 +8,5 @@
       - mysql_dir-{project}:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: {pass}
+    networks:
+      - app-network-ci4-{project}

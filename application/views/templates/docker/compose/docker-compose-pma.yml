@@ -11,3 +11,5 @@
       PMA_PORT: 3306
     links:
       - mysql-{project}:mysql
+    networks:
+      - app-network-ci4-{project}
